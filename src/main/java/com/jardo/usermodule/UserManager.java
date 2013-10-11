@@ -85,7 +85,7 @@ public class UserManager {
 		}
 
 		String passwordHash = calculatePasswordHash(password, storedPassword.getSalt());
-		if (storedPassword.getHash().equals(passwordHash) == false) {
+		if (storedPassword.getHash().equalsIgnoreCase(passwordHash) == false) {
 			return false;
 		}
 
