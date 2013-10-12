@@ -43,6 +43,16 @@ public class UserManagerTest {
 	}
 
 	@Test
+	public void testCancelPasswordResetTokensDatabaseError() {
+		Mockito.when(databaseModel.cancelAllPasswordResetTokens(1)).thenReturn(false);
+
+		ResultCode result = userManager.cancelPasswordResetTokens(1);
+		Assert.assertEquals(ResultCode.DATABASE_ERROR, result);
+
+		Mockito.verify(databaseModel).cancelAllPasswordResetTokens(1);
+	}
+
+	@Test
 	public void testCancelRegistration() {
 		UserPassword storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
