@@ -73,65 +73,73 @@ public class UserManager {
 		return string.matches("/^.+@.+\\..+$/");
 	}
 
-	public boolean cancelPasswordResetTokens(int userId) {
-		return databaseModel.cancelAllPasswordResetTokens(userId);
+	public ResultCode cancelPasswordResetTokens(int userId) {
+		boolean ok = databaseModel.cancelAllPasswordResetTokens(userId);
+		if (ok) {
+			return ResultCode.OK;
+		} else {
+			return ResultCode.DATABASE_ERROR;
+		}
 	}
 
-	public boolean cancelRegistration(int userId, String password) {
+	public ResultCode cancelRegistration(int userId, String password) {
 
 		UserPassword storedPassword = databaseModel.getUserPassword(userId);
 		if (storedPassword == null) {
-			return false;
+			return ResultCode.NO_SUCH_USER;
 		}
 
 		String passwordHash = calculatePasswordHash(password, storedPassword.getSalt());
 		if (storedPassword.getHash().equalsIgnoreCase(passwordHash) == false) {
-			return false;
+			return ResultCode.INVALID_CREDENTIALS;
 		}
 
-		return databaseModel.deleteUser(userId);
+		if (databaseModel.deleteUser(userId))
+			return ResultCode.OK;
+		else
+			return ResultCode.DATABASE_ERROR;
 	}
 
-	public boolean changePassword(int userId, String oldPassword, String newPassword) {
+	public ResultCode changePassword(int userId, String oldPassword, String newPassword) {
 
 		if (!isPasswordValid(userId, oldPassword)) {
-			return false;
+			return ResultCode.INVALID_CREDENTIALS;
 		}
 
 		UserPassword userPassword = createUserPassword(newPassword);
 
 		boolean ok = databaseModel.setUserPassword(userId, userPassword);
 		if (!ok) {
-			return false;
+			return ResultCode.DATABASE_ERROR;
 		}
 
-		return true;
+		return ResultCode.OK;
 	}
 
-	public boolean confirmRegistration(String email, String registrationControlCode) {
+	public ResultCode confirmRegistration(String email, String registrationControlCode) {
 
 		User user = databaseModel.getUserByEmail(email);
 		if (user == null) {
-			return false;
+			return ResultCode.NO_SUCH_USER;
 		}
 
 		if (!user.getRegistrationControlCode().equalsIgnoreCase(registrationControlCode)) {
-			return false;
+			return ResultCode.INVALID_REGISTRATION_CONTROL_CODE;
 		}
 
 		boolean ok = databaseModel.confirmUserRegistration(email);
 		if (!ok) {
-			return false;
+			return ResultCode.DATABASE_ERROR;
 		}
 
-		return true;
+		return ResultCode.OK;
 	}
 
-	public boolean createPasswordResetToken(String email) {
+	public ResultCode createPasswordResetToken(String email) {
 
 		int userId = databaseModel.getUserIdByEmail(email);
 		if (userId < 0) {
-			return false;
+			return ResultCode.NO_SUCH_USER;
 		}
 
 		databaseModel.cancelAllPasswordResetTokens(userId);
@@ -142,15 +150,15 @@ public class UserManager {
 
 		boolean ok = databaseModel.addPasswordResetToken(token);
 		if (!ok) {
-			return false;
+			return ResultCode.DATABASE_ERROR;
 		}
 
 		ok = emailSender.sendLostPasswordEmail(email, tokenKey);
 		if (!ok) {
-			return false;
+			return ResultCode.FAILED_TO_SEND_EMAIL;
 		}
 
-		return true;
+		return ResultCode.OK;
 	}
 
 	public User getCurrentUser() {
@@ -173,7 +181,7 @@ public class UserManager {
 		return storedPassword.getHash().equalsIgnoreCase(hash);
 	}
 
-	public boolean logIn(String userNameOrEmail, String password) {
+	public ResultCode logIn(String userNameOrEmail, String password) {
 
 		User user;
 
@@ -184,40 +192,40 @@ public class UserManager {
 		}
 
 		if (user == null) {
-			return false;
+			return ResultCode.NO_SUCH_USER;
 		}
 
 		if (!user.isRegistrationConfirmed()) {
-			return false;
+			return ResultCode.REGISTRATION_NOT_CONFIRMED;
 		}
 
 		String passwordHash = calculatePasswordHash(password, user.getPassword().getSalt());
 		if (!user.getPassword().getHash().equalsIgnoreCase(passwordHash)) {
 			makeLogInRecord(user.getId(), false);
-			return false;
+			return ResultCode.INVALID_CREDENTIALS;
 		}
 
 		sessionModel.setCurrentUser(user);
 		makeLogInRecord(user.getId(), true);
 		databaseModel.cancelAllPasswordResetTokens(user.getId());
 
-		return true;
+		return ResultCode.OK;
 	}
 
 	public void logOut() {
 		sessionModel.setCurrentUser(null);
 	}
 
-	public boolean registerUser(String email, String name, String password, boolean registrationConfirmed) {
+	public ResultCode registerUser(String email, String name, String password, boolean registrationConfirmed) {
 
 		if (name != null) {
 			if (databaseModel.isUserNameRegistered(name)) {
-				return false;
+				return ResultCode.USER_NAME_ALREADY_REGISTERED;
 			}
 		}
 
 		if (databaseModel.isEmailRegistered(email)) {
-			return false;
+			return ResultCode.EMAIL_ALREADY_REGISTERED;
 		}
 
 		String controlCode = generateRandomMD5Hash();
@@ -232,45 +240,45 @@ public class UserManager {
 
 		int newUserId = databaseModel.addUser(newUser);
 		if (newUserId < 0) {
-			return false;
+			return ResultCode.DATABASE_ERROR;
 		}
 
 		if (registrationConfirmed) {
 			// don't send registration email
-			return true;
+			return ResultCode.OK;
 		}
 
 		if (emailSender.sendRegistrationEmail(email, name, newUserId, controlCode)) {
-			return true;
+			return ResultCode.OK;
 		} else {
 			databaseModel.deleteUser(newUserId);
-			return false;
+			return ResultCode.FAILED_TO_SEND_EMAIL;
 		}
 	}
 
-	public boolean resendRegistrationEmail(String address) {
+	public ResultCode resendRegistrationEmail(String address) {
 
 		User user = databaseModel.getUserByEmail(address);
 		if (user == null) {
-			return false;
+			return ResultCode.NO_SUCH_USER;
 		}
 
 		if (user.isRegistrationConfirmed()) {
-			return false;
+			return ResultCode.REGISTRATION_ALREADY_CONFIRMED;
 		}
 
 		if (emailSender.sendRegistrationEmail(address, user.getName(), user.getId(), user.getRegistrationControlCode())) {
-			return true;
+			return ResultCode.OK;
 		} else {
-			return false;
+			return ResultCode.FAILED_TO_SEND_EMAIL;
 		}
 	}
 
-	public boolean resetPassword(String userEmail, String tokenKey, String newPassword) {
+	public ResultCode resetPassword(String userEmail, String tokenKey, String newPassword) {
 
 		PasswordResetToken token = databaseModel.getNewestPasswordResetToken(userEmail);
 		if (token == null) {
-			return false;
+			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
 		}
 
 		long tokenExpiration = token.getCreationTime().getTime() + PASSWORD_RESET_TOKEN_EXPIRATION_TIME_IN_MINUTES
@@ -278,20 +286,20 @@ public class UserManager {
 		long now = new Date().getTime();
 
 		if (now > tokenExpiration) {
-			return false;
+			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
 		}
 
 		int userId = databaseModel.getUserIdByEmail(userEmail);
 		if (userId < 0) {
-			return false;
+			return ResultCode.NO_SUCH_USER;
 		}
 
 		UserPassword userPassword = createUserPassword(newPassword);
 
 		if (databaseModel.setUserPassword(userId, userPassword)) {
-			return true;
+			return ResultCode.OK;
 		} else {
-			return false;
+			return ResultCode.DATABASE_ERROR;
 		}
 	}
 

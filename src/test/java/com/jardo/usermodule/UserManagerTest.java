@@ -34,7 +34,11 @@ public class UserManagerTest {
 
 	@Test
 	public void testCancelPasswordResetTokens() {
-		userManager.cancelPasswordResetTokens(1);
+		Mockito.when(databaseModel.cancelAllPasswordResetTokens(1)).thenReturn(true);
+
+		ResultCode result = userManager.cancelPasswordResetTokens(1);
+		Assert.assertEquals(ResultCode.OK, result);
+
 		Mockito.verify(databaseModel).cancelAllPasswordResetTokens(1);
 	}
 
@@ -44,8 +48,8 @@ public class UserManagerTest {
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
 		Mockito.when(databaseModel.deleteUser(1)).thenReturn(true);
 
-		boolean result = userManager.cancelRegistration(1, "password");
-		Assert.assertTrue(result);
+		ResultCode result = userManager.cancelRegistration(1, "password");
+		Assert.assertEquals(ResultCode.OK, result);
 
 		Mockito.verify(databaseModel).deleteUser(1);
 	}
@@ -54,8 +58,8 @@ public class UserManagerTest {
 	public void testCancelRegistrationUserDoesntExist() {
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(null);
 
-		boolean result = userManager.cancelRegistration(1, "password");
-		Assert.assertFalse(result);
+		ResultCode result = userManager.cancelRegistration(1, "password");
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
 
 		Mockito.verify(databaseModel, Mockito.times(0)).deleteUser(1);
 	}
@@ -65,8 +69,8 @@ public class UserManagerTest {
 		UserPassword storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
 
-		boolean result = userManager.cancelRegistration(1, "wrong_password");
-		Assert.assertFalse(result);
+		ResultCode result = userManager.cancelRegistration(1, "wrong_password");
+		Assert.assertEquals(ResultCode.INVALID_CREDENTIALS, result);
 
 		Mockito.verify(databaseModel, Mockito.times(0)).deleteUser(1);
 	}
