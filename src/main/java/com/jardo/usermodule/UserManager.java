@@ -123,6 +123,10 @@ public class UserManager {
 			return ResultCode.NO_SUCH_USER;
 		}
 
+		if (user.isRegistrationConfirmed()) {
+			return ResultCode.REGISTRATION_ALREADY_CONFIRMED;
+		}
+
 		if (!user.getRegistrationControlCode().equalsIgnoreCase(registrationControlCode)) {
 			return ResultCode.INVALID_REGISTRATION_CONTROL_CODE;
 		}
