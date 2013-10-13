@@ -5,8 +5,10 @@ import static org.junit.Assert.fail;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
 
 public class UserManagerTest {
@@ -22,6 +24,16 @@ public class UserManagerTest {
 	private SessionModel sessionModel;
 
 	private UserManager userManager;
+
+	private final UserPassword storedPassword;
+
+	private final User storedUser;
+
+	public UserManagerTest() {
+		storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
+
+		storedUser = new User(1, "John", "john@example.com", "5658ffccee7f0ebfda2b226238b1eb6e", true, storedPassword);
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -54,7 +66,6 @@ public class UserManagerTest {
 
 	@Test
 	public void testCancelRegistration() {
-		UserPassword storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
 		Mockito.when(databaseModel.deleteUser(1)).thenReturn(true);
 
@@ -76,7 +87,6 @@ public class UserManagerTest {
 
 	@Test
 	public void testCancelRegistrationWrongPassword() {
-		UserPassword storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
 
 		ResultCode result = userManager.cancelRegistration(1, "wrong_password");
@@ -87,12 +97,59 @@ public class UserManagerTest {
 
 	@Test
 	public void testChangePassword() {
-		fail("Not yet implemented");
+		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
+		Mockito.when(databaseModel.setUserPassword(Mockito.eq(1), Mockito.any(UserPassword.class))).thenReturn(true);
+
+		ResultCode result = userManager.changePassword(1, "password", "new_password");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		ArgumentCaptor<UserPassword> passwordCaptor = ArgumentCaptor.forClass(UserPassword.class);
+		Mockito.verify(databaseModel).setUserPassword(Mockito.eq(1), passwordCaptor.capture());
+
+		UserPassword newPassword = passwordCaptor.getValue();
+		Assert.assertNotEquals(newPassword.getHash(), STORED_PASSWORD_HASH);
+		Assert.assertNotEquals(newPassword.getSalt(), STORED_PASSWORD_SALT);
+	}
+
+	@Test
+	public void testChangePasswordWrongPassword() {
+		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
+
+		ResultCode result = userManager.changePassword(1, "wrong_old_password", "new_password");
+		Assert.assertEquals(ResultCode.INVALID_CREDENTIALS, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).setUserPassword(Mockito.anyInt(), Mockito.any(UserPassword.class));
 	}
 
 	@Test
 	public void testConfirmRegistration() {
-		fail("Not yet implemented");
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+
+		ResultCode result = userManager.confirmRegistration("john@example.com", storedUser.getRegistrationControlCode());
+		Assert.assertEquals(ResultCode.OK, result);
+
+		Mockito.verify(databaseModel).confirmUserRegistration("john@example.com");
+	}
+
+	@Test
+	public void testConfirmRegistrationInvalidEmail() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(null);
+
+		ResultCode result = userManager.confirmRegistration("john@example.com", storedUser.getRegistrationControlCode());
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).confirmUserRegistration("john@example.com");
+	}
+
+	@Test
+	public void testConfirmRegistrationInvalidControlCode() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+
+		String invalidControlCode = "";
+		ResultCode result = userManager.confirmRegistration("john@example.com", invalidControlCode);
+		Assert.assertEquals(ResultCode.INVALID_REGISTRATION_CONTROL_CODE, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).confirmUserRegistration("john@example.com");
 	}
 
 	@Test
