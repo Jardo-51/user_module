@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import com.jardo.usermodule.containers.PasswordResetToken;
 import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
 
@@ -153,8 +154,62 @@ public class UserManagerTest {
 	}
 
 	@Test
+	public void testConfirmRegistrationAlreadyConfirmed() {
+		User user = new User(2, "", "", storedUser.getRegistrationControlCode(), true, storedPassword);
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(user);
+
+		ResultCode result = userManager.confirmRegistration("john@example.com", storedUser.getRegistrationControlCode());
+		Assert.assertEquals(ResultCode.REGISTRATION_ALREADY_CONFIRMED, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).confirmUserRegistration("john@example.com");
+	}
+
+	@Test
 	public void testCreatePasswordResetToken() {
-		fail("Not yet implemented");
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+		Mockito.when(databaseModel.addPasswordResetToken(Mockito.any(PasswordResetToken.class))).thenReturn(true);
+		Mockito.when(emailSender.sendLostPasswordEmail(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
+
+		ResultCode result = userManager.createPasswordResetToken("john@example.com");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		// check database data
+
+		ArgumentCaptor<PasswordResetToken> tokenCaptor = ArgumentCaptor.forClass(PasswordResetToken.class);
+		Mockito.verify(databaseModel).addPasswordResetToken(tokenCaptor.capture());
+
+		PasswordResetToken newToken = tokenCaptor.getValue();
+		Assert.assertEquals(1, newToken.getUserId());
+
+		// check email data
+
+		ArgumentCaptor<String> emailCaptor = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<String> tokenKeyCaptor = ArgumentCaptor.forClass(String.class);
+		Mockito.verify(emailSender).sendLostPasswordEmail(emailCaptor.capture(), tokenKeyCaptor.capture());
+
+		Assert.assertEquals("john@example.com", emailCaptor.getValue());
+		Assert.assertEquals(newToken.getKey(), tokenKeyCaptor.getValue());
+	}
+
+	@Test
+	public void testCreatePasswordResetTokenFailedToSendEmail() {
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+		Mockito.when(databaseModel.addPasswordResetToken(Mockito.any(PasswordResetToken.class))).thenReturn(true);
+		Mockito.when(emailSender.sendLostPasswordEmail(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+
+		ResultCode result = userManager.createPasswordResetToken("john@example.com");
+		Assert.assertEquals(ResultCode.FAILED_TO_SEND_EMAIL, result);
+	}
+
+	@Test
+	public void testCreatePasswordResetTokenInvalidEmail() {
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(-1);
+
+		ResultCode result = userManager.createPasswordResetToken("john@example.com");
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).addPasswordResetToken(Mockito.any(PasswordResetToken.class));
+		Mockito.verifyZeroInteractions(emailSender);
 	}
 
 	@Test
