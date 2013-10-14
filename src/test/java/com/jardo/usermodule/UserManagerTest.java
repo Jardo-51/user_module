@@ -2,6 +2,8 @@ package com.jardo.usermodule;
 
 import static org.junit.Assert.fail;
 
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -214,12 +216,24 @@ public class UserManagerTest {
 
 	@Test
 	public void testGetCurrentUser() {
-		fail("Not yet implemented");
+		Mockito.when(sessionModel.getCurrentUser()).thenReturn(storedUser);
+
+		User result = userManager.getCurrentUser();
+		Assert.assertSame(storedUser, result);
 	}
 
 	@Test
 	public void testGetRegisteredUserCount() {
-		fail("Not yet implemented");
+		Mockito.when(databaseModel.getRegisteredUserCount(Mockito.any(Date.class))).thenReturn(5);
+
+		Date since = new Date();
+
+		int result = userManager.getRegisteredUserCount(since);
+		Assert.assertEquals(5, result);
+
+		ArgumentCaptor<Date> dateCaptor = ArgumentCaptor.forClass(Date.class);
+		Mockito.verify(databaseModel).getRegisteredUserCount(dateCaptor.capture());
+		Assert.assertEquals(since, dateCaptor.getValue());
 	}
 
 	@Test
