@@ -127,7 +127,9 @@ public class UserManagerTest {
 
 	@Test
 	public void testConfirmRegistration() {
-		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+		User user = new User(2, "", "", storedUser.getRegistrationControlCode(), false, storedPassword);
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(user);
+		Mockito.when(databaseModel.confirmUserRegistration("john@example.com")).thenReturn(true);
 
 		ResultCode result = userManager.confirmRegistration("john@example.com", storedUser.getRegistrationControlCode());
 		Assert.assertEquals(ResultCode.OK, result);
@@ -158,8 +160,7 @@ public class UserManagerTest {
 
 	@Test
 	public void testConfirmRegistrationAlreadyConfirmed() {
-		User user = new User(2, "", "", storedUser.getRegistrationControlCode(), true, storedPassword);
-		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(user);
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
 
 		ResultCode result = userManager.confirmRegistration("john@example.com", storedUser.getRegistrationControlCode());
 		Assert.assertEquals(ResultCode.REGISTRATION_ALREADY_CONFIRMED, result);
