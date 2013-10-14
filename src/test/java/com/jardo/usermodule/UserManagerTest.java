@@ -237,8 +237,27 @@ public class UserManagerTest {
 	}
 
 	@Test
-	public void testIsPasswordValid() {
-		fail("Not yet implemented");
+	public void testIsPasswordValidTrue() {
+		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
+
+		boolean result = userManager.isPasswordValid(1, "password");
+		Assert.assertEquals(true, result);
+	}
+
+	@Test
+	public void testIsPasswordValidFalse() {
+		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
+
+		boolean result = userManager.isPasswordValid(1, "wrong_password");
+		Assert.assertEquals(false, result);
+	}
+
+	@Test
+	public void testIsPasswordValidNoSuchUser() {
+		Mockito.when(databaseModel.getUserPassword(2)).thenReturn(null);
+
+		boolean result = userManager.isPasswordValid(2, "password");
+		Assert.assertEquals(false, result);
 	}
 
 	@Test
