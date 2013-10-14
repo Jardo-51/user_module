@@ -2,6 +2,7 @@ package com.jardo.usermodule;
 
 import static org.junit.Assert.fail;
 
+import java.net.InetAddress;
 import java.util.Date;
 
 import org.junit.Assert;
@@ -261,8 +262,67 @@ public class UserManagerTest {
 	}
 
 	@Test
-	public void testLogIn() {
-		fail("Not yet implemented");
+	public void testLogInWithEmail() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+
+		ResultCode result = userManager.logIn("john@example.com", "password");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		Mockito.verify(sessionModel).setCurrentUser(userCaptor.capture());
+		Assert.assertSame(storedUser, userCaptor.getValue());
+
+		// TODO: test ip address
+		Mockito.verify(databaseModel).makeLogInRecord(Mockito.eq(1), Mockito.eq(true), Mockito.any(InetAddress.class));
+		Mockito.verify(databaseModel).cancelAllPasswordResetTokens(1);
+	}
+
+	@Test
+	public void testLogInWithEmailNoSuchUser() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(null);
+
+		ResultCode result = userManager.logIn("john@example.com", "password");
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
+	}
+
+	@Test
+	public void testLogInWithEmailInvalidPassword() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+
+		ResultCode result = userManager.logIn("john@example.com", "wrong_password");
+		Assert.assertEquals(ResultCode.INVALID_CREDENTIALS, result);
+
+		Mockito.verify(sessionModel, Mockito.never()).setCurrentUser(Mockito.notNull(User.class));
+
+		// TODO: test ip address
+		Mockito.verify(databaseModel).makeLogInRecord(Mockito.eq(1), Mockito.eq(false), Mockito.any(InetAddress.class));
+	}
+
+	@Test
+	public void testLogInWithEmailRegistrationNotConfirmed() {
+		User user = new User(2, null, "carl@example.com", null, false, storedPassword);
+		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(user);
+
+		ResultCode result = userManager.logIn("carl@example.com", "wrong_password");
+		Assert.assertEquals(ResultCode.REGISTRATION_NOT_CONFIRMED, result);
+
+		Mockito.verify(sessionModel, Mockito.never()).setCurrentUser(Mockito.notNull(User.class));
+	}
+
+	@Test
+	public void testLogInWithUserName() {
+		Mockito.when(databaseModel.getUserByName("john")).thenReturn(storedUser);
+
+		ResultCode result = userManager.logIn("john", "password");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		Mockito.verify(sessionModel).setCurrentUser(userCaptor.capture());
+		Assert.assertSame(storedUser, userCaptor.getValue());
+
+		// TODO: test ip address
+		Mockito.verify(databaseModel).makeLogInRecord(Mockito.eq(1), Mockito.eq(true), Mockito.any(InetAddress.class));
+		Mockito.verify(databaseModel).cancelAllPasswordResetTokens(1);
 	}
 
 	@Test
