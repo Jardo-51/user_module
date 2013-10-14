@@ -149,9 +149,10 @@ public class UserManagerTest {
 
 	@Test
 	public void testConfirmRegistrationInvalidControlCode() {
-		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+		User user = new User(2, "", "", storedUser.getRegistrationControlCode(), false, storedPassword);
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(user);
 
-		String invalidControlCode = "";
+		String invalidControlCode = "d9d8172ffa4e21f955e8ad125f9dbc32";
 		ResultCode result = userManager.confirmRegistration("john@example.com", invalidControlCode);
 		Assert.assertEquals(ResultCode.INVALID_REGISTRATION_CONTROL_CODE, result);
 
