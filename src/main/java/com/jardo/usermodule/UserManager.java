@@ -70,7 +70,7 @@ public class UserManager {
 	}
 
 	protected boolean isEmail(String string) {
-		return string.matches("/^.+@.+\\..+$/");
+		return string.matches("[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})");
 	}
 
 	public ResultCode cancelPasswordResetTokens(int userId) {
