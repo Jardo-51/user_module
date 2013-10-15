@@ -311,6 +311,17 @@ public class UserManager {
 		}
 	}
 
+	/**
+	 * Sends a testing email of specified type (registration/lost password)
+	 * containing random fake data. It is intended to be called by web masters
+	 * to test/debug email sending functionality.
+	 * 
+	 * @param emailType
+	 *            type of email to send (registration, lost password, ...)
+	 * @param address
+	 *            email address to which the email will be sent
+	 * @return True on success, otherwise false.
+	 */
 	public boolean sendTestingEmail(EmailType emailType, String address) {
 		switch (emailType) {
 			case REGISTRATION:
