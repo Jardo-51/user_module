@@ -285,6 +285,10 @@ public class UserManager {
 			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
 		}
 
+		if (!token.getKey().equalsIgnoreCase(tokenKey)) {
+			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
+		}
+
 		long tokenExpiration = token.getCreationTime().getTime() + PASSWORD_RESET_TOKEN_EXPIRATION_TIME_IN_MINUTES
 				* 60000L;
 		long now = new Date().getTime();
