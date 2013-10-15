@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import com.jardo.usermodule.containers.PasswordResetToken;
 import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
+import com.jardo.usermodule.defines.EmailType;
 
 public class UserManagerTest {
 
@@ -441,6 +442,29 @@ public class UserManagerTest {
 
 	@Test
 	public void testSendTestingEmail() {
-		fail("Not yet implemented");
+		Mockito.when(emailSender.sendLostPasswordEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class))).thenReturn(true);
+
+		boolean result = userManager.sendTestingEmail(EmailType.LOST_PASSWORD, "john@example.com");
+		Assert.assertEquals(true, result);
+
+		Mockito.reset(emailSender);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class), Mockito.anyInt(), Mockito.notNull(String.class))).thenReturn(true);
+
+		result = userManager.sendTestingEmail(EmailType.REGISTRATION, "john@example.com");
+		Assert.assertEquals(true, result);
+	}
+
+	@Test
+	public void testSendTestingEmailFailedToSendEmail() {
+		Mockito.when(emailSender.sendLostPasswordEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class))).thenReturn(false);
+
+		boolean result = userManager.sendTestingEmail(EmailType.LOST_PASSWORD, "john@example.com");
+		Assert.assertEquals(false, result);
+
+		Mockito.reset(emailSender);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class), Mockito.anyInt(), Mockito.notNull(String.class))).thenReturn(false);
+
+		result = userManager.sendTestingEmail(EmailType.REGISTRATION, "john@example.com");
+		Assert.assertEquals(false, result);
 	}
 }
