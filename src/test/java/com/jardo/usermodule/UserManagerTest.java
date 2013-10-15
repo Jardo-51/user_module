@@ -339,7 +339,38 @@ public class UserManagerTest {
 
 	@Test
 	public void testResendRegistrationEmail() {
-		fail("Not yet implemented");
+		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(userWithUnfinishedRegistration);
+		Mockito.when(emailSender.sendRegistrationEmail("carl@example.com", "Carl", 2, userWithUnfinishedRegistration.getRegistrationControlCode())).thenReturn(true);
+
+		ResultCode result = userManager.resendRegistrationEmail("carl@example.com");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		Mockito.verify(emailSender).sendRegistrationEmail("carl@example.com", "Carl", 2, userWithUnfinishedRegistration.getRegistrationControlCode());
+	}
+
+	@Test
+	public void testResendRegistrationEmailFailedToSendEmail() {
+		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(userWithUnfinishedRegistration);
+		Mockito.when(emailSender.sendRegistrationEmail("carl@example.com", "Carl", 2, userWithUnfinishedRegistration.getRegistrationControlCode())).thenReturn(false);
+
+		ResultCode result = userManager.resendRegistrationEmail("carl@example.com");
+		Assert.assertEquals(ResultCode.FAILED_TO_SEND_EMAIL, result);
+	}
+
+	@Test
+	public void testResendRegistrationEmailNoSuchUser() {
+		Mockito.when(databaseModel.getUserByEmail("bender@example.com")).thenReturn(null);
+
+		ResultCode result = userManager.resendRegistrationEmail("bender@example.com");
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
+	}
+
+	@Test
+	public void testResendRegistrationEmailRegistrationAlreadyConfirmed() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+
+		ResultCode result = userManager.resendRegistrationEmail("john@example.com");
+		Assert.assertEquals(ResultCode.REGISTRATION_ALREADY_CONFIRMED, result);
 	}
 
 	@Test
