@@ -17,6 +17,8 @@ import com.jardo.usermodule.containers.UserPassword;
 
 public class UserManagerTest {
 
+	private static final long ONE_DAY = 86400000L;
+
 	// password = 'password'
 	private static final String STORED_PASSWORD_HASH = "EA1BAA4CAD9D822A51A1AA267A618FB2AC6D5D98A89709A595487EA493A69E90";
 	private static final String STORED_PASSWORD_SALT = "7886788CB39BF33C856EF18206A81CE4B498DC5A1A4199ABC0CB0FB686EAB008";
@@ -375,7 +377,66 @@ public class UserManagerTest {
 
 	@Test
 	public void testResetPassword() {
-		fail("Not yet implemented");
+		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date());
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+		Mockito.when(databaseModel.setUserPassword(Mockito.eq(1), Mockito.notNull(UserPassword.class))).thenReturn(true);
+
+		ResultCode result = userManager.resetPassword("john@example.com", token.getKey(), "new_password");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		ArgumentCaptor<UserPassword> passwordCaptor = ArgumentCaptor.forClass(UserPassword.class);
+		Mockito.verify(databaseModel).setUserPassword(Mockito.eq(1), passwordCaptor.capture());
+
+		UserPassword newPassword = passwordCaptor.getValue();
+		Assert.assertNotEquals(newPassword.getHash(), STORED_PASSWORD_HASH);
+		Assert.assertNotEquals(newPassword.getSalt(), STORED_PASSWORD_SALT);
+	}
+
+	@Test
+	public void testResetPasswordNoSuchUser() {
+		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date());
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(-1);
+
+		ResultCode result = userManager.resetPassword("john@example.com", token.getKey(), "new_password");
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
+	}
+
+	@Test
+	public void testResetPasswordNoToken() {
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(null);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+
+		ResultCode result = userManager.resetPassword("john@example.com", "a4d21f702e44af5d0ce7228dae878672", "new_password");
+		Assert.assertEquals(ResultCode.NO_VALID_PASSWORD_RESET_TOKEN, result);
+	}
+
+	@Test
+	public void testResetPasswordTokenExpired() {
+		long now = new Date().getTime();
+		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date(now - ONE_DAY));
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+		Mockito.when(databaseModel.setUserPassword(Mockito.eq(1), Mockito.notNull(UserPassword.class))).thenReturn(true);
+
+		ResultCode result = userManager.resetPassword("john@example.com", token.getKey(), "new_password");
+		Assert.assertEquals(ResultCode.NO_VALID_PASSWORD_RESET_TOKEN, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).setUserPassword(Mockito.eq(1), Mockito.any(UserPassword.class));
+	}
+
+	@Test
+	public void testResetPasswordWrongTokenKey() {
+		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date());
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+		Mockito.when(databaseModel.setUserPassword(Mockito.eq(1), Mockito.notNull(UserPassword.class))).thenReturn(true);
+
+		ResultCode result = userManager.resetPassword("john@example.com", "4ea15b4ed08e48a6d766e976a4387fd2", "new_password");
+		Assert.assertEquals(ResultCode.NO_VALID_PASSWORD_RESET_TOKEN, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).setUserPassword(Mockito.eq(1), Mockito.any(UserPassword.class));
 	}
 
 	@Test
