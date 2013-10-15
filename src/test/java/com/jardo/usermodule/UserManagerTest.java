@@ -33,10 +33,13 @@ public class UserManagerTest {
 
 	private final User storedUser;
 
+	private final User userWithUnfinishedRegistration;
+
 	public UserManagerTest() {
 		storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
 
 		storedUser = new User(1, "John", "john@example.com", "5658ffccee7f0ebfda2b226238b1eb6e", true, storedPassword);
+		userWithUnfinishedRegistration = new User(2, "Carl", "carl@example.com", "0b0606b79c0bb1babe52bbfdd4ae8e7f", false, storedPassword);
 	}
 
 	@Before
@@ -127,11 +130,10 @@ public class UserManagerTest {
 
 	@Test
 	public void testConfirmRegistration() {
-		User user = new User(2, "", "", storedUser.getRegistrationControlCode(), false, storedPassword);
-		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(user);
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(userWithUnfinishedRegistration);
 		Mockito.when(databaseModel.confirmUserRegistration("john@example.com")).thenReturn(true);
 
-		ResultCode result = userManager.confirmRegistration("john@example.com", storedUser.getRegistrationControlCode());
+		ResultCode result = userManager.confirmRegistration("john@example.com", userWithUnfinishedRegistration.getRegistrationControlCode());
 		Assert.assertEquals(ResultCode.OK, result);
 
 		Mockito.verify(databaseModel).confirmUserRegistration("john@example.com");
@@ -149,8 +151,7 @@ public class UserManagerTest {
 
 	@Test
 	public void testConfirmRegistrationInvalidControlCode() {
-		User user = new User(2, "", "", storedUser.getRegistrationControlCode(), false, storedPassword);
-		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(user);
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(userWithUnfinishedRegistration);
 
 		String invalidControlCode = "d9d8172ffa4e21f955e8ad125f9dbc32";
 		ResultCode result = userManager.confirmRegistration("john@example.com", invalidControlCode);
@@ -302,8 +303,7 @@ public class UserManagerTest {
 
 	@Test
 	public void testLogInWithEmailRegistrationNotConfirmed() {
-		User user = new User(2, null, "carl@example.com", null, false, storedPassword);
-		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(user);
+		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(userWithUnfinishedRegistration);
 
 		ResultCode result = userManager.logIn("carl@example.com", "wrong_password");
 		Assert.assertEquals(ResultCode.REGISTRATION_NOT_CONFIRMED, result);
