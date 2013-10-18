@@ -284,6 +284,10 @@ public class UserManager {
 			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
 		}
 
+		if (!token.getKey().equalsIgnoreCase(tokenKey)) {
+			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
+		}
+
 		long tokenExpiration = token.getCreationTime().getTime() + PASSWORD_RESET_TOKEN_EXPIRATION_TIME_IN_MINUTES
 				* 60000L;
 		long now = new Date().getTime();
@@ -306,6 +310,17 @@ public class UserManager {
 		}
 	}
 
+	/**
+	 * Sends a testing email of specified type (registration/lost password)
+	 * containing random fake data. It is intended to be called by web masters
+	 * to test/debug email sending functionality.
+	 * 
+	 * @param emailType
+	 *            type of email to send (registration, lost password, ...)
+	 * @param address
+	 *            email address to which the email will be sent
+	 * @return True on success, otherwise false.
+	 */
 	public boolean sendTestingEmail(EmailType emailType, String address) {
 		switch (emailType) {
 			case REGISTRATION:

@@ -14,8 +14,11 @@ import org.mockito.Mockito;
 import com.jardo.usermodule.containers.PasswordResetToken;
 import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
+import com.jardo.usermodule.defines.EmailType;
 
 public class UserManagerTest {
+
+	private static final long ONE_DAY = 86400000L;
 
 	// password = 'password'
 	private static final String STORED_PASSWORD_HASH = "EA1BAA4CAD9D822A51A1AA267A618FB2AC6D5D98A89709A595487EA493A69E90";
@@ -33,10 +36,13 @@ public class UserManagerTest {
 
 	private final User storedUser;
 
+	private final User userWithUnfinishedRegistration;
+
 	public UserManagerTest() {
 		storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
 
 		storedUser = new User(1, "John", "john@example.com", "5658ffccee7f0ebfda2b226238b1eb6e", true, storedPassword);
+		userWithUnfinishedRegistration = new User(2, "Carl", "carl@example.com", "0b0606b79c0bb1babe52bbfdd4ae8e7f", false, storedPassword);
 	}
 
 	@Before
@@ -127,11 +133,10 @@ public class UserManagerTest {
 
 	@Test
 	public void testConfirmRegistration() {
-		User user = new User(2, "", "", storedUser.getRegistrationControlCode(), false, storedPassword);
-		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(user);
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(userWithUnfinishedRegistration);
 		Mockito.when(databaseModel.confirmUserRegistration("john@example.com")).thenReturn(true);
 
-		ResultCode result = userManager.confirmRegistration("john@example.com", storedUser.getRegistrationControlCode());
+		ResultCode result = userManager.confirmRegistration("john@example.com", userWithUnfinishedRegistration.getRegistrationControlCode());
 		Assert.assertEquals(ResultCode.OK, result);
 
 		Mockito.verify(databaseModel).confirmUserRegistration("john@example.com");
@@ -149,8 +154,7 @@ public class UserManagerTest {
 
 	@Test
 	public void testConfirmRegistrationInvalidControlCode() {
-		User user = new User(2, "", "", storedUser.getRegistrationControlCode(), false, storedPassword);
-		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(user);
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(userWithUnfinishedRegistration);
 
 		String invalidControlCode = "d9d8172ffa4e21f955e8ad125f9dbc32";
 		ResultCode result = userManager.confirmRegistration("john@example.com", invalidControlCode);
@@ -302,8 +306,7 @@ public class UserManagerTest {
 
 	@Test
 	public void testLogInWithEmailRegistrationNotConfirmed() {
-		User user = new User(2, null, "carl@example.com", null, false, storedPassword);
-		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(user);
+		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(userWithUnfinishedRegistration);
 
 		ResultCode result = userManager.logIn("carl@example.com", "wrong_password");
 		Assert.assertEquals(ResultCode.REGISTRATION_NOT_CONFIRMED, result);
@@ -429,16 +432,129 @@ public class UserManagerTest {
 
 	@Test
 	public void testResendRegistrationEmail() {
-		fail("Not yet implemented");
+		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(userWithUnfinishedRegistration);
+		Mockito.when(emailSender.sendRegistrationEmail("carl@example.com", "Carl", 2, userWithUnfinishedRegistration.getRegistrationControlCode())).thenReturn(true);
+
+		ResultCode result = userManager.resendRegistrationEmail("carl@example.com");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		Mockito.verify(emailSender).sendRegistrationEmail("carl@example.com", "Carl", 2, userWithUnfinishedRegistration.getRegistrationControlCode());
+	}
+
+	@Test
+	public void testResendRegistrationEmailFailedToSendEmail() {
+		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(userWithUnfinishedRegistration);
+		Mockito.when(emailSender.sendRegistrationEmail("carl@example.com", "Carl", 2, userWithUnfinishedRegistration.getRegistrationControlCode())).thenReturn(false);
+
+		ResultCode result = userManager.resendRegistrationEmail("carl@example.com");
+		Assert.assertEquals(ResultCode.FAILED_TO_SEND_EMAIL, result);
+	}
+
+	@Test
+	public void testResendRegistrationEmailNoSuchUser() {
+		Mockito.when(databaseModel.getUserByEmail("bender@example.com")).thenReturn(null);
+
+		ResultCode result = userManager.resendRegistrationEmail("bender@example.com");
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
+	}
+
+	@Test
+	public void testResendRegistrationEmailRegistrationAlreadyConfirmed() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+
+		ResultCode result = userManager.resendRegistrationEmail("john@example.com");
+		Assert.assertEquals(ResultCode.REGISTRATION_ALREADY_CONFIRMED, result);
 	}
 
 	@Test
 	public void testResetPassword() {
-		fail("Not yet implemented");
+		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date());
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+		Mockito.when(databaseModel.setUserPassword(Mockito.eq(1), Mockito.notNull(UserPassword.class))).thenReturn(true);
+
+		ResultCode result = userManager.resetPassword("john@example.com", token.getKey(), "new_password");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		ArgumentCaptor<UserPassword> passwordCaptor = ArgumentCaptor.forClass(UserPassword.class);
+		Mockito.verify(databaseModel).setUserPassword(Mockito.eq(1), passwordCaptor.capture());
+
+		UserPassword newPassword = passwordCaptor.getValue();
+		Assert.assertNotEquals(newPassword.getHash(), STORED_PASSWORD_HASH);
+		Assert.assertNotEquals(newPassword.getSalt(), STORED_PASSWORD_SALT);
+	}
+
+	@Test
+	public void testResetPasswordNoSuchUser() {
+		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date());
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(-1);
+
+		ResultCode result = userManager.resetPassword("john@example.com", token.getKey(), "new_password");
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
+	}
+
+	@Test
+	public void testResetPasswordNoToken() {
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(null);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+
+		ResultCode result = userManager.resetPassword("john@example.com", "a4d21f702e44af5d0ce7228dae878672", "new_password");
+		Assert.assertEquals(ResultCode.NO_VALID_PASSWORD_RESET_TOKEN, result);
+	}
+
+	@Test
+	public void testResetPasswordTokenExpired() {
+		long now = new Date().getTime();
+		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date(now - ONE_DAY));
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+		Mockito.when(databaseModel.setUserPassword(Mockito.eq(1), Mockito.notNull(UserPassword.class))).thenReturn(true);
+
+		ResultCode result = userManager.resetPassword("john@example.com", token.getKey(), "new_password");
+		Assert.assertEquals(ResultCode.NO_VALID_PASSWORD_RESET_TOKEN, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).setUserPassword(Mockito.eq(1), Mockito.any(UserPassword.class));
+	}
+
+	@Test
+	public void testResetPasswordWrongTokenKey() {
+		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date());
+		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
+		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);
+		Mockito.when(databaseModel.setUserPassword(Mockito.eq(1), Mockito.notNull(UserPassword.class))).thenReturn(true);
+
+		ResultCode result = userManager.resetPassword("john@example.com", "4ea15b4ed08e48a6d766e976a4387fd2", "new_password");
+		Assert.assertEquals(ResultCode.NO_VALID_PASSWORD_RESET_TOKEN, result);
+
+		Mockito.verify(databaseModel, Mockito.never()).setUserPassword(Mockito.eq(1), Mockito.any(UserPassword.class));
 	}
 
 	@Test
 	public void testSendTestingEmail() {
-		fail("Not yet implemented");
+		Mockito.when(emailSender.sendLostPasswordEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class))).thenReturn(true);
+
+		boolean result = userManager.sendTestingEmail(EmailType.LOST_PASSWORD, "john@example.com");
+		Assert.assertEquals(true, result);
+
+		Mockito.reset(emailSender);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class), Mockito.anyInt(), Mockito.notNull(String.class))).thenReturn(true);
+
+		result = userManager.sendTestingEmail(EmailType.REGISTRATION, "john@example.com");
+		Assert.assertEquals(true, result);
+	}
+
+	@Test
+	public void testSendTestingEmailFailedToSendEmail() {
+		Mockito.when(emailSender.sendLostPasswordEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class))).thenReturn(false);
+
+		boolean result = userManager.sendTestingEmail(EmailType.LOST_PASSWORD, "john@example.com");
+		Assert.assertEquals(false, result);
+
+		Mockito.reset(emailSender);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class), Mockito.anyInt(), Mockito.notNull(String.class))).thenReturn(false);
+
+		result = userManager.sendTestingEmail(EmailType.REGISTRATION, "john@example.com");
+		Assert.assertEquals(false, result);
 	}
 }
