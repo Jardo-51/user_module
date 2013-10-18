@@ -255,7 +255,6 @@ public class UserManager {
 		if (emailSender.sendRegistrationEmail(email, name, newUserId, controlCode)) {
 			return ResultCode.OK;
 		} else {
-			databaseModel.deleteUser(newUserId);
 			return ResultCode.FAILED_TO_SEND_EMAIL;
 		}
 	}
