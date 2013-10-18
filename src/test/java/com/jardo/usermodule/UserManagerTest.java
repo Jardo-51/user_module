@@ -329,12 +329,102 @@ public class UserManagerTest {
 
 	@Test
 	public void testLogOut() {
-		fail("Not yet implemented");
+		userManager.logOut();
+		Mockito.verify(sessionModel).setCurrentUser(null);
 	}
 
 	@Test
 	public void testRegisterUser() {
-		fail("Not yet implemented");
+		Mockito.when(databaseModel.isEmailRegistered("carl@example.com")).thenReturn(false);
+		Mockito.when(databaseModel.isUserNameRegistered("Carl")).thenReturn(false);
+		Mockito.when(databaseModel.addUser(Mockito.notNull(User.class))).thenReturn(2);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("carl@example.com"), Mockito.eq("Carl"), Mockito.eq(2), Mockito.notNull(String.class))).thenReturn(true);
+
+		ResultCode result = userManager.registerUser("carl@example.com", "Carl", "password", false);
+		Assert.assertEquals(ResultCode.OK, result);
+
+		// check database model call
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		Mockito.verify(databaseModel).addUser(userCaptor.capture());
+
+		User addedUser = userCaptor.getValue();
+		Assert.assertEquals(-1, addedUser.getId());
+		Assert.assertEquals("carl@example.com", addedUser.getEmail());
+		Assert.assertEquals("Carl", addedUser.getName());
+		Assert.assertEquals(false, addedUser.isRegistrationConfirmed());
+
+		// check email sender call
+
+		Mockito.verify(emailSender).sendRegistrationEmail("carl@example.com", "Carl", 2, addedUser.getRegistrationControlCode());
+	}
+
+	@Test
+	public void testRegisterUserEmailAlreadyRegistered() {
+		Mockito.when(databaseModel.isEmailRegistered("carl@example.com")).thenReturn(true);
+		Mockito.when(databaseModel.isUserNameRegistered("Carl")).thenReturn(false);
+
+		ResultCode result = userManager.registerUser("carl@example.com", "Carl", "password", false);
+		Assert.assertEquals(ResultCode.EMAIL_ALREADY_REGISTERED, result);
+	}
+
+	@Test
+	public void testRegisterUserNameAlreadyRegistered() {
+		Mockito.when(databaseModel.isEmailRegistered("carl@example.com")).thenReturn(false);
+		Mockito.when(databaseModel.isUserNameRegistered("Carl")).thenReturn(true);
+
+		ResultCode result = userManager.registerUser("carl@example.com", "Carl", "password", false);
+		Assert.assertEquals(ResultCode.USER_NAME_ALREADY_REGISTERED, result);
+	}
+
+	@Test
+	public void testRegisterUserNameFailedToSendEmail() {
+		Mockito.when(databaseModel.isEmailRegistered("carl@example.com")).thenReturn(false);
+		Mockito.when(databaseModel.isUserNameRegistered("Carl")).thenReturn(false);
+		Mockito.when(databaseModel.addUser(Mockito.notNull(User.class))).thenReturn(2);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("carl@example.com"), Mockito.eq("Carl"), Mockito.eq(2), Mockito.notNull(String.class))).thenReturn(false);
+
+		ResultCode result = userManager.registerUser("carl@example.com", "Carl", "password", false);
+		Assert.assertEquals(ResultCode.FAILED_TO_SEND_EMAIL, result);
+
+		// check database model call
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		Mockito.verify(databaseModel).addUser(userCaptor.capture());
+
+		User addedUser = userCaptor.getValue();
+		Assert.assertEquals(-1, addedUser.getId());
+		Assert.assertEquals("carl@example.com", addedUser.getEmail());
+		Assert.assertEquals("Carl", addedUser.getName());
+		Assert.assertEquals(false, addedUser.isRegistrationConfirmed());
+
+		// check email sender call
+
+		Mockito.verify(emailSender).sendRegistrationEmail("carl@example.com", "Carl", 2, addedUser.getRegistrationControlCode());
+	}
+
+	@Test
+	public void testRegisterUserRegistrationConfirmed() {
+		Mockito.when(databaseModel.isEmailRegistered("carl@example.com")).thenReturn(false);
+		Mockito.when(databaseModel.isUserNameRegistered("Carl")).thenReturn(false);
+		Mockito.when(databaseModel.addUser(Mockito.notNull(User.class))).thenReturn(2);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("carl@example.com"), Mockito.eq("Carl"), Mockito.eq(2), Mockito.notNull(String.class))).thenReturn(true);
+
+		ResultCode result = userManager.registerUser("carl@example.com", "Carl", "password", true);
+		Assert.assertEquals(ResultCode.OK, result);
+
+		// check database model call
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		Mockito.verify(databaseModel).addUser(userCaptor.capture());
+
+		User addedUser = userCaptor.getValue();
+		Assert.assertEquals(-1, addedUser.getId());
+		Assert.assertEquals("carl@example.com", addedUser.getEmail());
+		Assert.assertEquals("Carl", addedUser.getName());
+		Assert.assertEquals(true, addedUser.isRegistrationConfirmed());
+
+		Mockito.verifyZeroInteractions(emailSender);
 	}
 
 	@Test
