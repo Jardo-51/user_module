@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.jardo.usermodule.containers.User;
+
 @Entity
 @Table(name = "um_user")
 public class UserEntity {
@@ -42,6 +44,16 @@ public class UserEntity {
 
 	public UserEntity() {
 		super();
+	}
+
+	public void copyUser(User user) {
+		id = user.getId();
+		name = user.getName();
+		email = user.getEmail();
+		registrationControlCode = user.getRegistrationControlCode();
+		registrationConfirmed = user.isRegistrationConfirmed();
+		passwordHash = user.getPassword().getHash();
+		passwordSalt = user.getPassword().getSalt();
 	}
 
 	public int getId() {

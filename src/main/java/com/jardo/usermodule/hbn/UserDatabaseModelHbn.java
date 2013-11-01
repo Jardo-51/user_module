@@ -3,12 +3,27 @@ package com.jardo.usermodule.hbn;
 import java.net.InetAddress;
 import java.util.Date;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
 import com.jardo.usermodule.UserDatabaseModel;
 import com.jardo.usermodule.containers.PasswordResetToken;
 import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
+import com.jardo.usermodule.hbn.dao.UserEntityDao;
+import com.jardo.usermodule.hbn.entities.UserEntity;
 
 public class UserDatabaseModelHbn implements UserDatabaseModel {
+
+	private final SessionFactory sessionFactory;
+
+	private final UserEntityDao userEntityDao;
+
+	public UserDatabaseModelHbn(SessionFactory sessionFactory) {
+		super();
+		this.sessionFactory = sessionFactory;
+		this.userEntityDao = new UserEntityDao();
+	}
 
 	public boolean addPasswordResetToken(PasswordResetToken token) {
 		// TODO Auto-generated method stub
@@ -16,8 +31,18 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public int addUser(User newUser) {
-		// TODO Auto-generated method stub
-		return 0;
+		UserEntity userEntity = new UserEntity();
+		userEntity.copyUser(newUser);
+		userEntity.setRegistrationDate(new Date());
+
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+
+		userEntityDao.addUserEntity(session, userEntity);
+
+		session.getTransaction().commit();
+		session.close();
+		return userEntity.getId();
 	}
 
 	public boolean cancelAllPasswordResetTokens(int userId) {
