@@ -47,7 +47,7 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 		userEntity.setRegistrationDate(new Date());
 
 		Session session = openSession();
-		userEntityDao.addUserEntity(session, userEntity);
+		userEntityDao.add(session, userEntity);
 		closeSession(session);
 
 		return userEntity.getId();
