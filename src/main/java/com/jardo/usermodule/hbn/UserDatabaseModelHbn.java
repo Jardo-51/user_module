@@ -19,6 +19,17 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 
 	private final UserEntityDao userEntityDao;
 
+	private void closeSession(Session session) {
+		session.getTransaction().commit();
+		session.close();
+	}
+
+	private Session openSession() {
+		Session session = sessionFactory.openSession();
+		session.beginTransaction();
+		return session;
+	}
+
 	public UserDatabaseModelHbn(SessionFactory sessionFactory) {
 		super();
 		this.sessionFactory = sessionFactory;
@@ -35,13 +46,10 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 		userEntity.copyUser(newUser);
 		userEntity.setRegistrationDate(new Date());
 
-		Session session = sessionFactory.openSession();
-		session.beginTransaction();
-
+		Session session = openSession();
 		userEntityDao.addUserEntity(session, userEntity);
+		closeSession(session);
 
-		session.getTransaction().commit();
-		session.close();
 		return userEntity.getId();
 	}
 
