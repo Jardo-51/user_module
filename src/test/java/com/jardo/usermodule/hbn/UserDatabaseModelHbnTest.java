@@ -71,8 +71,12 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testConfirmUserRegistration() {
-		fail("Not yet implemented");
+	public void testConfirmUserRegistration() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("src/test/resources/dataSets/userDatabaseModelHbnTest/beforeConfirmRegistration.xml");
+		databaseModel.confirmUserRegistration("john@test.com");
+
+		IDataSet expectedDataSet = loadFlatXmlDataSet("src/test/resources/dataSets/userDatabaseModelHbnTest/afterConfirmRegistration.xml");
+		assertTableContent(expectedDataSet, "um_user", new String[] {});
 	}
 
 	@Test
