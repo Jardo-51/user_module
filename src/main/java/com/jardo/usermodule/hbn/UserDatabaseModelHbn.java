@@ -65,8 +65,10 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public boolean cancelAllPasswordResetTokens(int userId) {
-		// TODO Auto-generated method stub
-		return false;
+		Session session = openSession();
+		passwordResetTokenEntityDao.cancelTokensForUser(session, userId);
+		closeSession(session);
+		return true;
 	}
 
 	public boolean confirmUserRegistration(String email) {

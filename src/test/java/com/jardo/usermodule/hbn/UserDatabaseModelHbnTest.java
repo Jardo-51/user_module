@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.Date;
 
+import org.dbunit.DatabaseUnitException;
 import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ReplacementDataSet;
@@ -61,8 +62,12 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testCancelAllPasswordResetTokens() {
-		fail("Not yet implemented");
+	public void testCancelAllPasswordResetTokens() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("src/test/resources/dataSets/userDatabaseModelHbnTest/beforeCancelAllPasswordResetTokens.xml");
+		databaseModel.cancelAllPasswordResetTokens(1);
+
+		IDataSet expectedDataSet = loadFlatXmlDataSet("src/test/resources/dataSets/userDatabaseModelHbnTest/afterCancelAllPasswordResetTokens.xml");
+		assertTableContent(expectedDataSet, "um_password_reset_token", new String[] {});
 	}
 
 	@Test
