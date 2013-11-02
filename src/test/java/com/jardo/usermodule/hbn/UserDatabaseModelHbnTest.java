@@ -80,8 +80,17 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testDeleteUser() {
-		fail("Not yet implemented");
+	public void testDeleteUser() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("src/test/resources/dataSets/userDatabaseModelHbnTest/beforeDeleteUser.xml");
+
+		boolean result = databaseModel.deleteUser(1);
+		assertEquals(true, result);
+
+		result = databaseModel.deleteUser(3);
+		assertEquals(false, result);
+
+		IDataSet expectedDataSet = loadFlatXmlDataSet("src/test/resources/dataSets/userDatabaseModelHbnTest/afterDeleteUser.xml");
+		assertTableContent(expectedDataSet, "um_user", new String[] {});
 	}
 
 	@Test

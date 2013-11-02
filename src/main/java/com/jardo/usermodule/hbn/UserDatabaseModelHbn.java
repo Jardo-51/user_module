@@ -77,8 +77,10 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public boolean deleteUser(int userId) {
-		// TODO Auto-generated method stub
-		return false;
+		Session session = openSession();
+		boolean result = userEntityDao.deleteUserEntity(session, userId);
+		closeSession(session);
+		return result;
 	}
 
 	public int getRegisteredUserCount(Date since) {
