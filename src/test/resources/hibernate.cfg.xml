@@ -21,6 +21,7 @@
 		<property name="current_session_context_class">thread</property>
 
 		<mapping class="com.jardo.usermodule.hbn.entities.UserEntity" />
+		<mapping class="com.jardo.usermodule.hbn.entities.PasswordResetTokenEntity" />
 
 	</session-factory>
 </hibernate-configuration>

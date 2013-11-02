@@ -33,6 +33,8 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 
 	@Test
 	public void testAddPasswordResetToken() throws SQLException, Exception {
+		fillDatabase("src/test/resources/dataSets/userDatabaseModelHbnTest/beforeAddPasswordResetToken.xml");
+
 		PasswordResetToken token = new PasswordResetToken(1, "ea587b759f423f0bfadfe7aeba0ee3fe", new Date());
 
 		boolean result = databaseModel.addPasswordResetToken(token);

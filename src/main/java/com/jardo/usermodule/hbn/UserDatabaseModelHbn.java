@@ -10,7 +10,9 @@ import com.jardo.usermodule.UserDatabaseModel;
 import com.jardo.usermodule.containers.PasswordResetToken;
 import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
+import com.jardo.usermodule.hbn.dao.PasswordResetTokenEntityDao;
 import com.jardo.usermodule.hbn.dao.UserEntityDao;
+import com.jardo.usermodule.hbn.entities.PasswordResetTokenEntity;
 import com.jardo.usermodule.hbn.entities.UserEntity;
 
 public class UserDatabaseModelHbn implements UserDatabaseModel {
@@ -18,6 +20,8 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	private final SessionFactory sessionFactory;
 
 	private final UserEntityDao userEntityDao;
+
+	private final PasswordResetTokenEntityDao passwordResetTokenEntityDao;
 
 	private void closeSession(Session session) {
 		session.getTransaction().commit();
@@ -34,11 +38,18 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 		super();
 		this.sessionFactory = sessionFactory;
 		this.userEntityDao = new UserEntityDao();
+		this.passwordResetTokenEntityDao = new PasswordResetTokenEntityDao();
 	}
 
 	public boolean addPasswordResetToken(PasswordResetToken token) {
-		// TODO Auto-generated method stub
-		return false;
+		PasswordResetTokenEntity tokenEntity = new PasswordResetTokenEntity(token);
+		tokenEntity.setValid(true);
+
+		Session session = openSession();
+		passwordResetTokenEntityDao.add(session, tokenEntity);
+		closeSession(session);
+
+		return true;
 	}
 
 	public int addUser(User newUser) {
