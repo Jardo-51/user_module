@@ -36,6 +36,9 @@ public class UserEntity {
 	@Column(name = "deleted")
 	private boolean deleted;
 
+	@Column(name = "rank")
+	private int rank;
+
 	@Column(name = "password")
 	private String passwordHash;
 
@@ -84,6 +87,10 @@ public class UserEntity {
 		return deleted;
 	}
 
+	public int getRank() {
+		return rank;
+	}
+
 	public String getPasswordHash() {
 		return passwordHash;
 	}
@@ -118,6 +125,10 @@ public class UserEntity {
 
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
+	}
+
+	public void setRank(int rank) {
+		this.rank = rank;
 	}
 
 	public void setPasswordHash(String passwordHash) {
