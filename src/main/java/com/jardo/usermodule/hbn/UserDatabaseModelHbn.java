@@ -3,7 +3,6 @@ package com.jardo.usermodule.hbn;
 import java.net.InetAddress;
 import java.util.Date;
 
-import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -74,15 +73,9 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 
 	public boolean confirmUserRegistration(String email) {
 		Session session = openSession();
-
-		String queryStr = "UPDATE UserEntity u SET u.registrationConfirmed = true WHERE u.email = :email";
-		Query query = session.createQuery(queryStr);
-		query.setParameter("email", email);
-
-		query.executeUpdate();
-
+		boolean result = userEntityDao.confirmRegistration(session, email);
 		closeSession(session);
-		return true;
+		return result;
 	}
 
 	public boolean deleteUser(int userId) {

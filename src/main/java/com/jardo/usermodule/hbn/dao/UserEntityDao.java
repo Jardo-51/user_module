@@ -9,6 +9,15 @@ import com.jardo.usermodule.hbn.entities.UserEntity;
 
 public class UserEntityDao extends CommonDao<UserEntity> {
 
+	public boolean confirmRegistration(Session session, String email) {
+		String queryStr = "UPDATE UserEntity u SET u.registrationConfirmed = true WHERE u.email = :email";
+		Query query = session.createQuery(queryStr);
+		query.setParameter("email", email);
+
+		int updatedRows = query.executeUpdate();
+		return updatedRows == 1;
+	}
+
 	public int getRegisteredUserCount(Session session, Date since) {
 		if (since == null) {
 			since = new Date(0);
