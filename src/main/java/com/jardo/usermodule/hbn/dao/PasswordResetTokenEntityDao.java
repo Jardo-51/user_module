@@ -15,4 +15,14 @@ public class PasswordResetTokenEntityDao extends CommonDao<PasswordResetTokenEnt
 		query.executeUpdate();
 	}
 
+	public PasswordResetTokenEntity getNewestToken(Session session, String email) {
+		String queryStr = "FROM PasswordResetTokenEntity prt WHERE prt.user.email = :email ORDER BY prt.time DESC";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("email", email);
+		query.setMaxResults(1);
+
+		return (PasswordResetTokenEntity) query.uniqueResult();
+	}
+
 }

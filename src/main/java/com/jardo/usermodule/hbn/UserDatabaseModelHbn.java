@@ -3,6 +3,7 @@ package com.jardo.usermodule.hbn;
 import java.net.InetAddress;
 import java.util.Date;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
@@ -72,8 +73,16 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public boolean confirmUserRegistration(String email) {
-		// TODO Auto-generated method stub
-		return false;
+		Session session = openSession();
+
+		String queryStr = "UPDATE UserEntity u SET u.registrationConfirmed = true WHERE u.email = :email";
+		Query query = session.createQuery(queryStr);
+		query.setParameter("email", email);
+
+		query.executeUpdate();
+
+		closeSession(session);
+		return true;
 	}
 
 	public boolean deleteUser(int userId) {
@@ -84,13 +93,23 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public int getRegisteredUserCount(Date since) {
-		// TODO Auto-generated method stub
-		return 0;
+		Session session = openSession();
+		int result = userEntityDao.getRegisteredUserCount(session, since);
+		closeSession(session);
+
+		return result;
 	}
 
 	public PasswordResetToken getNewestPasswordResetToken(String email) {
-		// TODO Auto-generated method stub
-		return null;
+		Session session = openSession();
+		PasswordResetTokenEntity tokenEntity = passwordResetTokenEntityDao.getNewestToken(session, email);
+		closeSession(session);
+
+		if (tokenEntity == null) {
+			return null;
+		}
+
+		return new PasswordResetToken(tokenEntity.getUser().getId(), tokenEntity.getKey(), tokenEntity.getTime());
 	}
 
 	public User getUserByEmail(String email) {

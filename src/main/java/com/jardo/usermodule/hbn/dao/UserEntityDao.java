@@ -1,11 +1,27 @@
 package com.jardo.usermodule.hbn.dao;
 
+import java.util.Date;
+
 import org.hibernate.Query;
 import org.hibernate.Session;
 
 import com.jardo.usermodule.hbn.entities.UserEntity;
 
 public class UserEntityDao extends CommonDao<UserEntity> {
+
+	public int getRegisteredUserCount(Session session, Date since) {
+		if (since == null) {
+			since = new Date(0);
+		}
+
+		String queryStr = "SELECT count(*) FROM UserEntity u WHERE u.registrationConfirmed = true AND u.deleted = false AND u.registrationDate >= :since";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("since", since);
+
+		Long result = (Long) query.uniqueResult();
+		return result.intValue();
+	}
 
 	public boolean deleteUserEntity(Session session, int userId) {
 		String queryStr = "UPDATE UserEntity u SET u.deleted = true WHERE u.id = :userId";
