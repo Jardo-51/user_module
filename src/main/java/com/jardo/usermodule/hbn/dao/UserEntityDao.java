@@ -33,7 +33,7 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 	}
 
 	public int getUserIdByEmail(Session session, String email) {
-		String queryStr = "SELECT u.id FROM UserEntity u WHERE u.email= :email";
+		String queryStr = "SELECT u.id FROM UserEntity u WHERE u.email= :email AND u.deleted = false";
 
 		Query query = session.createQuery(queryStr);
 		query.setParameter("email", email);
@@ -57,7 +57,7 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 	}
 
 	public UserEntity findByEmail(Session session, String email) {
-		String queryStr = "FROM UserEntity u WHERE u.email = :email";
+		String queryStr = "FROM UserEntity u WHERE u.email = :email AND u.deleted = false";
 
 		Query query = session.createQuery(queryStr);
 		query.setParameter("email", email);
@@ -67,7 +67,7 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 	}
 
 	public UserEntity findByName(Session session, String name) {
-		String queryStr = "FROM UserEntity u WHERE u.name = :name";
+		String queryStr = "FROM UserEntity u WHERE u.name = :name AND u.deleted = false";
 
 		Query query = session.createQuery(queryStr);
 		query.setParameter("name", name);

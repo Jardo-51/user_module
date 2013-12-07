@@ -129,6 +129,10 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 		User result = databaseModel.getUserByEmail("non-existing@test.com");
 		assertEquals(null, result);
 
+		// deleted user
+		result = databaseModel.getUserByEmail("allan@test.com");
+		assertEquals(null, result);
+
 		result = databaseModel.getUserByEmail("john@test.com");
 		assertNotNull(result);
 		assertEquals(1, result.getId());
@@ -141,6 +145,10 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 		User result = databaseModel.getUserByName("non-existing");
 		assertEquals(null, result);
 
+		// deleted user
+		result = databaseModel.getUserByName("allan");
+		assertEquals(null, result);
+
 		result = databaseModel.getUserByName("john");
 		assertNotNull(result);
 		assertEquals(1, result.getId());
@@ -151,6 +159,10 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 		fillDatabase("userDatabaseModelHbnTest/userList.xml");
 
 		int result = databaseModel.getUserIdByEmail("non-existing@test.com");
+		assertEquals(-1, result);
+
+		// deleted user
+		result = databaseModel.getUserIdByEmail("allan@test.com");
 		assertEquals(-1, result);
 
 		result = databaseModel.getUserIdByEmail("john@test.com");
