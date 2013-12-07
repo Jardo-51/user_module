@@ -19,25 +19,22 @@ import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
 
-public abstract class UMDatabaseTestCase extends DBTestCase {
+public class UMDatabaseTestCase extends DBTestCase {
 
 	private static final String DATA_SET_PREFIX = "src/test/resources/dataSets/";
-
-	private IDataSet initialDataSet;
 
 	private final FlatXmlDataSetBuilder dataSetBuilder;
 
 	private final SimpleDateFormat dateParser = new SimpleDateFormat("yyyy-MM-dd");
 
-	protected abstract IDataSet createInitialDataSet() throws Exception;
-
 	protected void assertTableContent(IDataSet expectedDataSet, String tableName, String[] excludedColumns) throws SQLException, Exception {
 		IDataSet actualDataSet = getConnection().createDataSet();
 
 		ITable expectedTable = expectedDataSet.getTable(tableName);
-
 		ITable actualTable = actualDataSet.getTable(tableName);
+
 		if (excludedColumns != null) {
+			expectedTable = DefaultColumnFilter.excludedColumnsTable(expectedTable, excludedColumns);
 			actualTable = DefaultColumnFilter.excludedColumnsTable(actualTable, excludedColumns);
 		}
 
@@ -46,10 +43,7 @@ public abstract class UMDatabaseTestCase extends DBTestCase {
 
 	@Override
 	protected IDataSet getDataSet() throws Exception {
-		if (initialDataSet == null) {
-			initialDataSet = createInitialDataSet();
-		}
-		return initialDataSet;
+		return null;
 	}
 
 	protected void fillDatabase(String dataSetFileName) throws DatabaseUnitException, SQLException, Exception {
@@ -58,6 +52,12 @@ public abstract class UMDatabaseTestCase extends DBTestCase {
 		turnForeignKeyCheckingOff();
 		DatabaseOperation.CLEAN_INSERT.execute(getConnection(), dataSet);
 		turnForeignKeyCheckingOn();
+	}
+
+	@Override
+	protected DatabaseOperation getSetUpOperation() throws Exception
+	{
+		return DatabaseOperation.NONE;
 	}
 
 	protected ReplacementDataSet loadFlatXmlDataSet(String fileName) throws FileNotFoundException, DataSetException {
@@ -93,7 +93,6 @@ public abstract class UMDatabaseTestCase extends DBTestCase {
 
 	public UMDatabaseTestCase() {
 		super();
-		this.initialDataSet = null;
 		this.dataSetBuilder = new FlatXmlDataSetBuilder();
 
 		System.setProperty(PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "org.hsqldb.jdbcDriver");
