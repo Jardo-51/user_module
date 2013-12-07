@@ -130,8 +130,10 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public int getUserIdByEmail(String email) {
-		// TODO Auto-generated method stub
-		return 0;
+		Session session = openSession();
+		int id = userEntityDao.getUserIdByEmail(session, email);
+		closeSession(session);
+		return id;
 	}
 
 	public UserPassword getUserPassword(int userId) {

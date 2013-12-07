@@ -126,7 +126,7 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	public void testGetUserByEmail() throws DatabaseUnitException, SQLException, Exception {
 		fillDatabase("userDatabaseModelHbnTest/userList.xml");
 
-		User result = databaseModel.getUserByEmail("non-existing@text.com");
+		User result = databaseModel.getUserByEmail("non-existing@test.com");
 		assertEquals(null, result);
 
 		result = databaseModel.getUserByEmail("john@test.com");
@@ -147,8 +147,14 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testGetUserIdByEmail() {
-		fail("Not yet implemented");
+	public void testGetUserIdByEmail() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("userDatabaseModelHbnTest/userList.xml");
+
+		int result = databaseModel.getUserIdByEmail("non-existing@test.com");
+		assertEquals(-1, result);
+
+		result = databaseModel.getUserIdByEmail("john@test.com");
+		assertEquals(1, result);
 	}
 
 	@Test

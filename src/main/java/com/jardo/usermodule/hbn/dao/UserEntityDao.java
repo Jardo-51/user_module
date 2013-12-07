@@ -32,6 +32,20 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 		return result.intValue();
 	}
 
+	public int getUserIdByEmail(Session session, String email) {
+		String queryStr = "SELECT u.id FROM UserEntity u WHERE u.email= :email";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("email", email);
+
+		Integer result = (Integer) query.uniqueResult();
+		if (result == null) {
+			return -1;
+		}
+
+		return result.intValue();
+	}
+
 	public boolean deleteUserEntity(Session session, int userId) {
 		String queryStr = "UPDATE UserEntity u SET u.deleted = true WHERE u.id = :userId";
 
