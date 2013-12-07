@@ -170,8 +170,21 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testGetUserPassword() {
-		fail("Not yet implemented");
+	public void testGetUserPassword() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("userDatabaseModelHbnTest/userList.xml");
+
+		// non-exiting user
+		UserPassword result = databaseModel.getUserPassword(10);
+		assertEquals(null, result);
+
+		// deleted user
+		result = databaseModel.getUserPassword(3);
+		assertEquals(null, result);
+
+		result = databaseModel.getUserPassword(1);
+		assertNotNull(result);
+		assertEquals("7342f7c8d3d1d68ee7c03ab72b3deac613b837a4c4c07042cbeca974ea7ba218", result.getHash());
+		assertEquals("7886788cb39bf33c856ef18206a81ce4b498dc5a1a4199abc0cb0fb686eab008", result.getSalt());
 	}
 
 	@Test

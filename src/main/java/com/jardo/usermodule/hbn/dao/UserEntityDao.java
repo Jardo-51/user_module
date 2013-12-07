@@ -5,6 +5,7 @@ import java.util.Date;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
+import com.jardo.usermodule.containers.UserPassword;
 import com.jardo.usermodule.hbn.entities.UserEntity;
 
 public class UserEntityDao extends CommonDao<UserEntity> {
@@ -44,6 +45,23 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 		}
 
 		return result.intValue();
+	}
+
+	public UserPassword getUserPassword(Session session, int userId) {
+		String queryStr = "SELECT u.passwordHash, u.passwordSalt FROM UserEntity u WHERE u.id= :id AND u.deleted = false";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("id", userId);
+
+		Object result[] = (Object[]) query.uniqueResult();
+		if (result == null) {
+			return null;
+		}
+
+		String hash = (String) result[0];
+		String salt = (String) result[1];
+
+		return new UserPassword(hash, salt);
 	}
 
 	public boolean deleteUserEntity(Session session, int userId) {
