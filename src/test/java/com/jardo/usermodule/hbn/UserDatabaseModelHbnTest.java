@@ -227,8 +227,20 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testSetUserPassword() {
-		fail("Not yet implemented");
+	public void testSetUserPassword() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("userDatabaseModelHbnTest/beforeSetUserPassword.xml");
+
+		UserPassword password = new UserPassword("362ec39d4e116faba4f8727a5e8386cfc796cfe0d9f94ac048cf90ac0b33e571", "cda7fa19837cab6fc8fcefec2b8a4e2cfddd29fcbafffba420e262a41ac2a17f");
+
+		// non-existing user
+		boolean result = databaseModel.setUserPassword(5, password);
+		assertEquals(false, result);
+
+		result = databaseModel.setUserPassword(1, password);
+		assertEquals(true, result);
+
+		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterSetUserPassword.xml");
+		assertTableContent(expectedDataSet, "um_user", new String[] {});
 	}
 
 }

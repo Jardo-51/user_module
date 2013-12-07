@@ -181,8 +181,10 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public boolean setUserPassword(int userId, UserPassword password) {
-		// TODO Auto-generated method stub
-		return false;
+		Session session = openSession();
+		boolean result = userEntityDao.setUserPassword(session, userId, password);
+		closeSession(session);
+		return result;
 	}
 
 }

@@ -111,4 +111,16 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 
 		return query.uniqueResult() != null;
 	}
+
+	public boolean setUserPassword(Session session, int userId, UserPassword password) {
+		String queryStr = "UPDATE UserEntity u SET u.passwordHash = :hash, u.passwordSalt = :salt WHERE u.id = :userId";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("userId", userId);
+		query.setParameter("hash", password.getHash());
+		query.setParameter("salt", password.getSalt());
+
+		int updatedRows = query.executeUpdate();
+		return updatedRows == 1;
+	}
 }
