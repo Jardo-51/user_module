@@ -51,4 +51,14 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 
 		return (UserEntity) query.uniqueResult();
 	}
+
+	public UserEntity findByName(Session session, String name) {
+		String queryStr = "FROM UserEntity u WHERE u.name = :name";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("name", name);
+		query.setMaxResults(1);
+
+		return (UserEntity) query.uniqueResult();
+	}
 }

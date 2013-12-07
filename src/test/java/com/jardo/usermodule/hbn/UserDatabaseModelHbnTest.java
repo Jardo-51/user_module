@@ -135,8 +135,15 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testGetUserByName() {
-		fail("Not yet implemented");
+	public void testGetUserByName() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("userDatabaseModelHbnTest/userList.xml");
+
+		User result = databaseModel.getUserByName("non-existing");
+		assertEquals(null, result);
+
+		result = databaseModel.getUserByName("john");
+		assertNotNull(result);
+		assertEquals(1, result.getId());
 	}
 
 	@Test

@@ -106,7 +106,6 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public User getUserByEmail(String email) {
-
 		Session session = openSession();
 		UserEntity userEntity = userEntityDao.findByEmail(session, email);
 		closeSession(session);
@@ -119,8 +118,15 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public User getUserByName(String name) {
-		// TODO Auto-generated method stub
-		return null;
+		Session session = openSession();
+		UserEntity userEntity = userEntityDao.findByName(session, name);
+		closeSession(session);
+
+		if (userEntity == null) {
+			return null;
+		}
+
+		return userEntity.toUser();
 	}
 
 	public int getUserIdByEmail(String email) {
