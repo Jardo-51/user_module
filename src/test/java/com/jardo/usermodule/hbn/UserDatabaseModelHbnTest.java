@@ -207,8 +207,22 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testIsUserNameRegistered() {
-		fail("Not yet implemented");
+	public void testIsUserNameRegistered() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("userDatabaseModelHbnTest/userList.xml");
+
+		boolean result = databaseModel.isUserNameRegistered("non-existing");
+		assertEquals(false, result);
+
+		// deleted user
+		result = databaseModel.isUserNameRegistered("allan");
+		assertEquals(false, result);
+
+		// registered but not confirmed user
+		result = databaseModel.isUserNameRegistered("mike");
+		assertEquals(true, result);
+
+		result = databaseModel.isUserNameRegistered("john");
+		assertEquals(true, result);
 	}
 
 	@Test

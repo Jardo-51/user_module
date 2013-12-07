@@ -102,4 +102,13 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 
 		return query.uniqueResult() != null;
 	}
+
+	public boolean isUserNameRegistered(Session session, String name) {
+		String queryStr = "SELECT 1 FROM UserEntity u WHERE u.name = :name AND u.deleted = false";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("name", name);
+
+		return query.uniqueResult() != null;
+	}
 }
