@@ -93,4 +93,13 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 
 		return (UserEntity) query.uniqueResult();
 	}
+
+	public boolean isEmailRegistered(Session session, String email) {
+		String queryStr = "SELECT 1 FROM UserEntity u WHERE u.email = :email AND u.deleted = false";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("email", email);
+
+		return query.uniqueResult() != null;
+	}
 }

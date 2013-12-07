@@ -144,8 +144,10 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public boolean isEmailRegistered(String email) {
-		// TODO Auto-generated method stub
-		return false;
+		Session session = openSession();
+		boolean result = userEntityDao.isEmailRegistered(session, email);
+		closeSession(session);
+		return result;
 	}
 
 	public boolean isUserNameRegistered(String name) {
