@@ -22,6 +22,7 @@
 
 		<mapping class="com.jardo.usermodule.hbn.entities.UserEntity" />
 		<mapping class="com.jardo.usermodule.hbn.entities.PasswordResetTokenEntity" />
+		<mapping class="com.jardo.usermodule.hbn.entities.LogInRecordEntity" />
 
 	</session-factory>
 </hibernate-configuration>

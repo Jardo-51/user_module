@@ -1,0 +1,4 @@
+<dataset>
+	<um_login_record user_id="1" successful="false" />
+	<um_login_record user_id="2" successful="true" />
+</dataset>

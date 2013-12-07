@@ -10,8 +10,10 @@ import com.jardo.usermodule.UserDatabaseModel;
 import com.jardo.usermodule.containers.PasswordResetToken;
 import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
+import com.jardo.usermodule.hbn.dao.LogInRecordEntityDao;
 import com.jardo.usermodule.hbn.dao.PasswordResetTokenEntityDao;
 import com.jardo.usermodule.hbn.dao.UserEntityDao;
+import com.jardo.usermodule.hbn.entities.LogInRecordEntity;
 import com.jardo.usermodule.hbn.entities.PasswordResetTokenEntity;
 import com.jardo.usermodule.hbn.entities.UserEntity;
 
@@ -22,6 +24,8 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	private final UserEntityDao userEntityDao;
 
 	private final PasswordResetTokenEntityDao passwordResetTokenEntityDao;
+
+	private final LogInRecordEntityDao logInRecordEntityDao;
 
 	private void closeSession(Session session) {
 		session.getTransaction().commit();
@@ -39,6 +43,7 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 		this.sessionFactory = sessionFactory;
 		this.userEntityDao = new UserEntityDao();
 		this.passwordResetTokenEntityDao = new PasswordResetTokenEntityDao();
+		this.logInRecordEntityDao = new LogInRecordEntityDao();
 	}
 
 	public boolean addPasswordResetToken(PasswordResetToken token) {
@@ -158,8 +163,21 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 	}
 
 	public boolean makeLogInRecord(int userId, boolean logInSuccessfull, InetAddress usersIp) {
-		// TODO Auto-generated method stub
-		return false;
+
+		UserEntity user = new UserEntity();
+		user.setId(userId);
+
+		LogInRecordEntity logInRecordEntity = new LogInRecordEntity();
+		logInRecordEntity.setUser(user);
+		logInRecordEntity.setTime(new Date());
+		logInRecordEntity.setIp(usersIp);
+		logInRecordEntity.setSuccessful(logInSuccessfull);
+
+		Session session = openSession();
+		logInRecordEntityDao.add(session, logInRecordEntity);
+		closeSession(session);
+
+		return true;
 	}
 
 	public boolean setUserPassword(int userId, UserPassword password) {

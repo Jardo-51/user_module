@@ -1,13 +1,11 @@
 package com.jardo.usermodule.hbn;
 
-import java.io.FileNotFoundException;
+import java.net.InetAddress;
 import java.sql.SQLException;
 import java.util.Date;
 
 import org.dbunit.DatabaseUnitException;
-import org.dbunit.dataset.DataSetException;
 import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.ReplacementDataSet;
 import org.junit.Test;
 
 import com.jardo.usermodule.containers.PasswordResetToken;
@@ -21,15 +19,6 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	public UserDatabaseModelHbnTest() {
 		super();
 		databaseModel = new UserDatabaseModelHbn(HibernateUtil.getSessionFactory());
-	}
-
-	@Override
-	protected IDataSet createInitialDataSet() throws FileNotFoundException, DataSetException {
-		ReplacementDataSet result = loadFlatXmlDataSet("userDatabaseModelHbnTest/initial.xml");
-
-		result.addReplacementObject("[NOW]", new Date());
-
-		return result;
 	}
 
 	@Test
@@ -226,8 +215,15 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	}
 
 	@Test
-	public void testMakeLogInRecord() {
-		fail("Not yet implemented");
+	public void testMakeLogInRecord() throws DatabaseUnitException, SQLException, Exception {
+		fillDatabase("userDatabaseModelHbnTest/beforeMakeLogInRecord.xml");
+
+		InetAddress ip = InetAddress.getByName("195.210.29.1");
+		databaseModel.makeLogInRecord(1, false, ip);
+		databaseModel.makeLogInRecord(2, true, ip);
+
+		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterMakeLoginRecord.xml");
+		assertTableContent(expectedDataSet, "um_login_record", new String[] { "date_time", "ip" });
 	}
 
 	@Test
