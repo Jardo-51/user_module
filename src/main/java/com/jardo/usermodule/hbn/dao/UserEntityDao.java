@@ -41,4 +41,14 @@ public class UserEntityDao extends CommonDao<UserEntity> {
 		int updatedRows = query.executeUpdate();
 		return updatedRows == 1;
 	}
+
+	public UserEntity findByEmail(Session session, String email) {
+		String queryStr = "FROM UserEntity u WHERE u.email = :email";
+
+		Query query = session.createQuery(queryStr);
+		query.setParameter("email", email);
+		query.setMaxResults(1);
+
+		return (UserEntity) query.uniqueResult();
+	}
 }

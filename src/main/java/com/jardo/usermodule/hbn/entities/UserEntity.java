@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.jardo.usermodule.containers.User;
+import com.jardo.usermodule.containers.UserPassword;
 
 @Entity
 @Table(name = "um_user")
@@ -137,6 +138,12 @@ public class UserEntity {
 
 	public void setPasswordSalt(String passwordSalt) {
 		this.passwordSalt = passwordSalt;
+	}
+
+	public User toUser() {
+		UserPassword password = new UserPassword(passwordHash, passwordSalt);
+		User result = new User(id, name, email, registrationControlCode, registrationConfirmed, password);
+		return result;
 	}
 
 }
