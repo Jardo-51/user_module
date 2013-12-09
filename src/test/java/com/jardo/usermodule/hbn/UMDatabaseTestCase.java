@@ -18,7 +18,9 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.filter.DefaultColumnFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
 import org.dbunit.operation.DatabaseOperation;
+import org.junit.Ignore;
 
+@Ignore
 public class UMDatabaseTestCase extends DBTestCase {
 
 	private static final String DATA_SET_PREFIX = "src/test/resources/dataSets/";
