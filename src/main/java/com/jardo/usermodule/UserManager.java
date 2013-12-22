@@ -1,5 +1,6 @@
 package com.jardo.usermodule;
 
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,7 +12,9 @@ import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
 import com.jardo.usermodule.defines.EmailType;
 
-public class UserManager {
+public class UserManager implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final int PASSWORD_RESET_TOKEN_EXPIRATION_TIME_IN_MINUTES = 15;
 
