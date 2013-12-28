@@ -176,6 +176,27 @@ public class UserManager implements Serializable {
 		return databaseModel.getRegisteredUserCount(since);
 	}
 
+	public boolean isPasswordResetTokenValid(String email, String tokenKey) {
+
+		PasswordResetToken token = databaseModel.getNewestPasswordResetToken(email);
+		if (token == null) {
+			return false;
+		}
+
+		if (!token.getKey().equalsIgnoreCase(tokenKey)) {
+			return false;
+		}
+
+		long tokenExpiration = token.getCreationTime().getTime() + PASSWORD_RESET_TOKEN_EXPIRATION_TIME_IN_MINUTES * 60000L;
+		long now = new Date().getTime();
+
+		if (now > tokenExpiration) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public boolean isPasswordValid(int userId, String password) {
 
 		UserPassword storedPassword = databaseModel.getUserPassword(userId);
@@ -282,20 +303,8 @@ public class UserManager implements Serializable {
 
 	public ResultCode resetPassword(String userEmail, String tokenKey, String newPassword) {
 
-		PasswordResetToken token = databaseModel.getNewestPasswordResetToken(userEmail);
-		if (token == null) {
-			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
-		}
-
-		if (!token.getKey().equalsIgnoreCase(tokenKey)) {
-			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
-		}
-
-		long tokenExpiration = token.getCreationTime().getTime() + PASSWORD_RESET_TOKEN_EXPIRATION_TIME_IN_MINUTES
-				* 60000L;
-		long now = new Date().getTime();
-
-		if (now > tokenExpiration) {
+		boolean tokenValid = isPasswordResetTokenValid(userEmail, tokenKey);
+		if (!tokenValid) {
 			return ResultCode.NO_VALID_PASSWORD_RESET_TOKEN;
 		}
 
