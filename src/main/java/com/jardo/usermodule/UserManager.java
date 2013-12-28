@@ -258,11 +258,7 @@ public class UserManager implements Serializable {
 
 		String controlCode = generateRandomMD5Hash();
 
-		String passwordSalt = generatePasswordSalt();
-
-		String passwordHash = calculatePasswordHash(password, passwordSalt);
-
-		UserPassword userPassword = new UserPassword(passwordHash, passwordSalt);
+		UserPassword userPassword = createUserPassword(password);
 
 		User newUser = new User(-1, name, email, controlCode, registrationConfirmed, userPassword);
 
