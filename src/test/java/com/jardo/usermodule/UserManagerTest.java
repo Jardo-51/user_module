@@ -1,8 +1,8 @@
 package com.jardo.usermodule;
 
-import static org.junit.Assert.fail;
-
 import java.net.InetAddress;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import org.junit.Assert;
@@ -38,11 +38,38 @@ public class UserManagerTest {
 
 	private final User userWithUnfinishedRegistration;
 
+	private MessageDigest sha256;
+
+	private void assertPasswordData(String password, UserPassword passwordData) {
+		sha256.update(passwordData.getSalt().getBytes());
+		String expectedHash = toHex(sha256.digest(password.getBytes()));
+
+		Assert.assertEquals(expectedHash, passwordData.getHash().toLowerCase());
+	}
+
+	private String toHex(byte[] bytes) {
+		StringBuilder result = new StringBuilder();
+		char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+		for (int idx = 0; idx < bytes.length; ++idx) {
+			byte b = bytes[idx];
+			result.append(digits[(b & 0xf0) >> 4]);
+			result.append(digits[b & 0x0f]);
+		}
+		return result.toString();
+	}
+
 	public UserManagerTest() {
 		storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
 
 		storedUser = new User(1, "John", "john@example.com", "5658ffccee7f0ebfda2b226238b1eb6e", true, storedPassword);
 		userWithUnfinishedRegistration = new User(2, "Carl", "carl@example.com", "0b0606b79c0bb1babe52bbfdd4ae8e7f", false, storedPassword);
+
+		try {
+			this.sha256 = MessageDigest.getInstance("SHA-256");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			this.sha256 = null;
+		}
 	}
 
 	@Before
@@ -117,8 +144,7 @@ public class UserManagerTest {
 		Mockito.verify(databaseModel).setUserPassword(Mockito.eq(1), passwordCaptor.capture());
 
 		UserPassword newPassword = passwordCaptor.getValue();
-		Assert.assertNotEquals(newPassword.getHash(), STORED_PASSWORD_HASH);
-		Assert.assertNotEquals(newPassword.getSalt(), STORED_PASSWORD_SALT);
+		assertPasswordData("new_password", newPassword);
 	}
 
 	@Test
@@ -356,6 +382,7 @@ public class UserManagerTest {
 		Assert.assertEquals("carl@example.com", addedUser.getEmail());
 		Assert.assertEquals("Carl", addedUser.getName());
 		Assert.assertEquals(false, addedUser.isRegistrationConfirmed());
+		assertPasswordData("password", addedUser.getPassword());
 
 		// check email sender call
 
@@ -480,8 +507,7 @@ public class UserManagerTest {
 		Mockito.verify(databaseModel).setUserPassword(Mockito.eq(1), passwordCaptor.capture());
 
 		UserPassword newPassword = passwordCaptor.getValue();
-		Assert.assertNotEquals(newPassword.getHash(), STORED_PASSWORD_HASH);
-		Assert.assertNotEquals(newPassword.getSalt(), STORED_PASSWORD_SALT);
+		assertPasswordData("new_password", newPassword);
 	}
 
 	@Test

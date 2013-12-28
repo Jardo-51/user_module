@@ -32,7 +32,7 @@ public class UserManager implements Serializable {
 		String salt = generatePasswordSalt();
 		String hash = calculatePasswordHash(password, salt);
 
-		return new UserPassword(salt, hash);
+		return new UserPassword(hash, salt);
 	}
 
 	private String generateRandomMD5Hash() {
@@ -63,7 +63,7 @@ public class UserManager implements Serializable {
 
 	protected String calculatePasswordHash(String password, String salt) {
 		sha256.update(salt.getBytes());
-		return toHex( sha256.digest(password.getBytes()) );
+		return toHex(sha256.digest(password.getBytes()));
 	}
 
 	protected String generatePasswordSalt() {
