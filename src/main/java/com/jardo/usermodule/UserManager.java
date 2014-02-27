@@ -240,6 +240,36 @@ public class UserManager implements Serializable {
 		return ResultCode.OK;
 	}
 
+	/**
+	 * Enables to log in as any user without knowing his password. This method is intended for testing/administration
+	 * purposes only and should not be publicly accessible via the application UI. It does not make any login records
+	 * nor does it delete existing password reset tokens.
+	 * @param userNameOrEmail
+	 * @return {@link ResultCode#NO_SUCH_USER}, {@link ResultCode#REGISTRATION_NOT_CONFIRMED}
+	 */
+	public ResultCode logInWithoutPassword(String userNameOrEmail) {
+
+		User user;
+
+		if (isEmail(userNameOrEmail)) {
+			user = databaseModel.getUserByEmail(userNameOrEmail);
+		} else {
+			user = databaseModel.getUserByName(userNameOrEmail);
+		}
+
+		if (user == null) {
+			return ResultCode.NO_SUCH_USER;
+		}
+
+		if (!user.isRegistrationConfirmed()) {
+			return ResultCode.REGISTRATION_NOT_CONFIRMED;
+		}
+
+		sessionModel.setCurrentUser(user);
+
+		return ResultCode.OK;
+	}
+
 	public void logOut() {
 		sessionModel.setCurrentUser(null);
 	}

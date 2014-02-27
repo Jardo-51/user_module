@@ -341,6 +341,54 @@ public class UserManagerTest {
 	}
 
 	@Test
+	public void testLogInWithoutPasswordWithEmail() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
+
+		ResultCode result = userManager.logInWithoutPassword("john@example.com");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		Mockito.verify(sessionModel).setCurrentUser(userCaptor.capture());
+		Assert.assertSame(storedUser, userCaptor.getValue());
+
+		Mockito.verify(databaseModel, Mockito.never()).makeLogInRecord(Mockito.anyInt(), Mockito.anyBoolean(), Mockito.any(InetAddress.class));
+		Mockito.verify(databaseModel, Mockito.never()).cancelAllPasswordResetTokens(Mockito.anyInt());
+	}
+
+	@Test
+	public void testLogInWithoutPasswordWithEmailNoSuchUser() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(null);
+
+		ResultCode result = userManager.logInWithoutPassword("john@example.com");
+		Assert.assertEquals(ResultCode.NO_SUCH_USER, result);
+	}
+
+	@Test
+	public void testLogInWithoutPasswordWithEmailRegistrationNotConfirmed() {
+		Mockito.when(databaseModel.getUserByEmail("carl@example.com")).thenReturn(userWithUnfinishedRegistration);
+
+		ResultCode result = userManager.logInWithoutPassword("carl@example.com");
+		Assert.assertEquals(ResultCode.REGISTRATION_NOT_CONFIRMED, result);
+
+		Mockito.verify(sessionModel, Mockito.never()).setCurrentUser(Mockito.notNull(User.class));
+	}
+
+	@Test
+	public void testLogInWithoutPasswordWithUserName() {
+		Mockito.when(databaseModel.getUserByName("john")).thenReturn(storedUser);
+
+		ResultCode result = userManager.logInWithoutPassword("john");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		Mockito.verify(sessionModel).setCurrentUser(userCaptor.capture());
+		Assert.assertSame(storedUser, userCaptor.getValue());
+
+		Mockito.verify(databaseModel, Mockito.never()).makeLogInRecord(Mockito.anyInt(), Mockito.anyBoolean(), Mockito.any(InetAddress.class));
+		Mockito.verify(databaseModel, Mockito.never()).cancelAllPasswordResetTokens(Mockito.anyInt());
+	}
+
+	@Test
 	public void testLogInWithUserName() {
 		Mockito.when(databaseModel.getUserByName("john")).thenReturn(storedUser);
 
@@ -564,7 +612,8 @@ public class UserManagerTest {
 		Assert.assertEquals(true, result);
 
 		Mockito.reset(emailSender);
-		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class), Mockito.anyInt(), Mockito.notNull(String.class))).thenReturn(true);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class), Mockito.anyInt(), Mockito.notNull(String.class))).thenReturn(
+				true);
 
 		result = userManager.sendTestingEmail(EmailType.REGISTRATION, "john@example.com");
 		Assert.assertEquals(true, result);
@@ -578,7 +627,8 @@ public class UserManagerTest {
 		Assert.assertEquals(false, result);
 
 		Mockito.reset(emailSender);
-		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class), Mockito.anyInt(), Mockito.notNull(String.class))).thenReturn(false);
+		Mockito.when(emailSender.sendRegistrationEmail(Mockito.eq("john@example.com"), Mockito.notNull(String.class), Mockito.anyInt(), Mockito.notNull(String.class))).thenReturn(
+				false);
 
 		result = userManager.sendTestingEmail(EmailType.REGISTRATION, "john@example.com");
 		Assert.assertEquals(false, result);
