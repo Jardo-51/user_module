@@ -290,7 +290,7 @@ public class UserManager implements Serializable {
 
 		UserPassword userPassword = createUserPassword(password);
 
-		User newUser = new User(-1, name, email, controlCode, registrationConfirmed, userPassword);
+		User newUser = new User(-1, name, email, controlCode, registrationConfirmed, userPassword, UserRanks.NORMAL_USER);
 
 		int newUserId = databaseModel.addUser(newUser);
 		if (newUserId < 0) {

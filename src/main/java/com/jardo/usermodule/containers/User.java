@@ -14,6 +14,8 @@ public class User {
 
 	private final UserPassword password;
 
+	private int rank;
+
 	public int getId() {
 		return id;
 	}
@@ -38,13 +40,22 @@ public class User {
 		return password;
 	}
 
-	public User(int id, String name, String email, String registrationControlCode, boolean registrationConfirmed, UserPassword password) {
+	public int getRank() {
+		return rank;
+	}
+
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
+
+	public User(int id, String name, String email, String registrationControlCode, boolean registrationConfirmed, UserPassword password, int rank) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.registrationControlCode = registrationControlCode;
 		this.registrationConfirmed = registrationConfirmed;
 		this.password = password;
+		this.rank = rank;
 	}
 
 }

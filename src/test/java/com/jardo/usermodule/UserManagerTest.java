@@ -61,8 +61,8 @@ public class UserManagerTest {
 	public UserManagerTest() {
 		storedPassword = new UserPassword(STORED_PASSWORD_HASH, STORED_PASSWORD_SALT);
 
-		storedUser = new User(1, "John", "john@example.com", "5658ffccee7f0ebfda2b226238b1eb6e", true, storedPassword);
-		userWithUnfinishedRegistration = new User(2, "Carl", "carl@example.com", "0b0606b79c0bb1babe52bbfdd4ae8e7f", false, storedPassword);
+		storedUser = new User(1, "John", "john@example.com", "5658ffccee7f0ebfda2b226238b1eb6e", true, storedPassword, UserRanks.NORMAL_USER);
+		userWithUnfinishedRegistration = new User(2, "Carl", "carl@example.com", "0b0606b79c0bb1babe52bbfdd4ae8e7f", false, storedPassword, UserRanks.NORMAL_USER);
 
 		try {
 			this.sha256 = MessageDigest.getInstance("SHA-256");
@@ -431,6 +431,7 @@ public class UserManagerTest {
 		Assert.assertEquals("Carl", addedUser.getName());
 		Assert.assertEquals(false, addedUser.isRegistrationConfirmed());
 		assertPasswordData("password", addedUser.getPassword());
+		Assert.assertEquals(UserRanks.NORMAL_USER, addedUser.getRank());
 
 		// check email sender call
 
