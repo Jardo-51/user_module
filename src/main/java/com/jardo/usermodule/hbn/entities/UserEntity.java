@@ -58,6 +58,7 @@ public class UserEntity {
 		registrationConfirmed = user.isRegistrationConfirmed();
 		passwordHash = user.getPassword().getHash();
 		passwordSalt = user.getPassword().getSalt();
+		rank = user.getRank();
 	}
 
 	public int getId() {
@@ -142,7 +143,7 @@ public class UserEntity {
 
 	public User toUser() {
 		UserPassword password = new UserPassword(passwordHash, passwordSalt);
-		User result = new User(id, name, email, registrationControlCode, registrationConfirmed, password);
+		User result = new User(id, name, email, registrationControlCode, registrationConfirmed, password, rank);
 		return result;
 	}
 

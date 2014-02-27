@@ -8,6 +8,7 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.dataset.IDataSet;
 import org.junit.Test;
 
+import com.jardo.usermodule.UserRanks;
 import com.jardo.usermodule.containers.PasswordResetToken;
 import com.jardo.usermodule.containers.User;
 import com.jardo.usermodule.containers.UserPassword;
@@ -39,7 +40,7 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 		fillDatabase("userDatabaseModelHbnTest/beforeAddUser.xml");
 
 		UserPassword password = new UserPassword("ea1baa4cad9d822a51a1aa267a618fb2ac6d5d98a89709a595487ea493a69e90", "7886788cb39bf33c856ef18206a81ce4b498dc5a1a4199abc0cb0fb686eab008");
-		User user = new User(-1, "carl", "carl@test.com", "ea587b759f423f0bfadfe7aeba0ee3fe", false, password);
+		User user = new User(-1, "carl", "carl@test.com", "ea587b759f423f0bfadfe7aeba0ee3fe", false, password, UserRanks.NORMAL_USER);
 
 		int result = databaseModel.addUser(user);
 
@@ -47,7 +48,7 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 
 		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterAddUser.xml");
 
-		assertTableContent(expectedDataSet, "um_user", new String[] { "reg_date", "rank" });
+		assertTableContent(expectedDataSet, "um_user", new String[] { "reg_date" });
 	}
 
 	@Test
