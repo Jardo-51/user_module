@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Properties;
 
 import com.jardo.usermodule.containers.PasswordResetToken;
 import com.jardo.usermodule.containers.User;
@@ -14,15 +15,17 @@ import com.jardo.usermodule.defines.EmailType;
 
 public class UserManager implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	public static final String PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = "passwordResetTokenExpirationMinutes";
 
-	private static final int PASSWORD_RESET_TOKEN_EXPIRATION_TIME_IN_MINUTES = 15;
+	private static final long serialVersionUID = 1L;
 
 	private final UserDatabaseModel databaseModel;
 
 	private final EmailSender emailSender;
 
 	private final SessionModel sessionModel;
+
+	private int passwordResetTokenExpirationMinutes = 15;
 
 	private SecureRandom randomGenerator;
 
@@ -48,6 +51,13 @@ public class UserManager implements Serializable {
 
 	private boolean makeLogInRecord(int userId, boolean logInSuccessfull) {
 		return databaseModel.makeLogInRecord(userId, logInSuccessfull, getUsersIp());
+	}
+
+	private void parseProperties(Properties properties) {
+
+		String property = properties.getProperty(PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES, "15");
+		passwordResetTokenExpirationMinutes = Integer.parseInt(property);
+
 	}
 
 	private String toHex(byte[] bytes) {
@@ -187,7 +197,7 @@ public class UserManager implements Serializable {
 			return false;
 		}
 
-		long tokenExpiration = token.getCreationTime().getTime() + PASSWORD_RESET_TOKEN_EXPIRATION_TIME_IN_MINUTES * 60000L;
+		long tokenExpiration = token.getCreationTime().getTime() + passwordResetTokenExpirationMinutes * 60000L;
 		long now = new Date().getTime();
 
 		if (now > tokenExpiration) {
@@ -370,7 +380,7 @@ public class UserManager implements Serializable {
 		}
 	}
 
-	public UserManager(UserDatabaseModel databaseModel, EmailSender emailSender, SessionModel sessionModel) {
+	public UserManager(UserDatabaseModel databaseModel, EmailSender emailSender, SessionModel sessionModel, Properties properties) {
 		this.databaseModel = databaseModel;
 		this.emailSender = emailSender;
 		this.sessionModel = sessionModel;
@@ -381,6 +391,8 @@ public class UserManager implements Serializable {
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
+
+		parseProperties(properties);
 	}
 
 }

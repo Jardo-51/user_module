@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -78,7 +79,10 @@ public class UserManagerTest {
 		emailSender = Mockito.mock(EmailSender.class);
 		sessionModel = Mockito.mock(SessionModel.class);
 
-		userManager = new UserManager(databaseModel, emailSender, sessionModel);
+		Properties properties = new Properties();
+		properties.setProperty(UserManager.PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES, "15");
+
+		userManager = new UserManager(databaseModel, emailSender, sessionModel, properties);
 	}
 
 	@Test
