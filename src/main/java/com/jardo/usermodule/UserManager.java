@@ -44,13 +44,8 @@ public class UserManager implements Serializable {
 		return toHex(bytes);
 	}
 
-	private InetAddress getUsersIp() {
-		//TODO:
-		return null;
-	}
-
-	private boolean makeLogInRecord(int userId, boolean logInSuccessfull) {
-		return databaseModel.makeLogInRecord(userId, logInSuccessfull, getUsersIp());
+	private boolean makeLogInRecord(int userId, boolean logInSuccessfull, InetAddress usersIp) {
+		return databaseModel.makeLogInRecord(userId, logInSuccessfull, usersIp);
 	}
 
 	private void parseProperties(Properties properties) {
@@ -219,7 +214,7 @@ public class UserManager implements Serializable {
 		return storedPassword.getHash().equalsIgnoreCase(hash);
 	}
 
-	public ResultCode logIn(String userNameOrEmail, String password) {
+	public ResultCode logIn(String userNameOrEmail, String password, InetAddress usersIp) {
 
 		User user;
 
@@ -239,12 +234,12 @@ public class UserManager implements Serializable {
 
 		String passwordHash = calculatePasswordHash(password, user.getPassword().getSalt());
 		if (!user.getPassword().getHash().equalsIgnoreCase(passwordHash)) {
-			makeLogInRecord(user.getId(), false);
+			makeLogInRecord(user.getId(), false, usersIp);
 			return ResultCode.INVALID_PASSWORD;
 		}
 
 		sessionModel.setCurrentUser(user);
-		makeLogInRecord(user.getId(), true);
+		makeLogInRecord(user.getId(), true, usersIp);
 		databaseModel.cancelAllPasswordResetTokens(user.getId());
 
 		return ResultCode.OK;
