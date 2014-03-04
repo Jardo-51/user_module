@@ -104,7 +104,7 @@ public class UserManager implements Serializable {
 
 		String passwordHash = calculatePasswordHash(password, storedPassword.getSalt());
 		if (storedPassword.getHash().equalsIgnoreCase(passwordHash) == false) {
-			return ResultCode.INVALID_CREDENTIALS;
+			return ResultCode.INVALID_PASSWORD;
 		}
 
 		if (databaseModel.deleteUser(userId))
@@ -116,7 +116,7 @@ public class UserManager implements Serializable {
 	public ResultCode changePassword(int userId, String oldPassword, String newPassword) {
 
 		if (!isPasswordValid(userId, oldPassword)) {
-			return ResultCode.INVALID_CREDENTIALS;
+			return ResultCode.INVALID_PASSWORD;
 		}
 
 		UserPassword userPassword = createUserPassword(newPassword);
@@ -240,7 +240,7 @@ public class UserManager implements Serializable {
 		String passwordHash = calculatePasswordHash(password, user.getPassword().getSalt());
 		if (!user.getPassword().getHash().equalsIgnoreCase(passwordHash)) {
 			makeLogInRecord(user.getId(), false);
-			return ResultCode.INVALID_CREDENTIALS;
+			return ResultCode.INVALID_PASSWORD;
 		}
 
 		sessionModel.setCurrentUser(user);

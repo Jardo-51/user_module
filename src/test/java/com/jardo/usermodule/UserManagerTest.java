@@ -131,7 +131,7 @@ public class UserManagerTest {
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
 
 		ResultCode result = userManager.cancelRegistration(1, "wrong_password");
-		Assert.assertEquals(ResultCode.INVALID_CREDENTIALS, result);
+		Assert.assertEquals(ResultCode.INVALID_PASSWORD, result);
 
 		Mockito.verify(databaseModel, Mockito.times(0)).deleteUser(1);
 	}
@@ -156,7 +156,7 @@ public class UserManagerTest {
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
 
 		ResultCode result = userManager.changePassword(1, "wrong_old_password", "new_password");
-		Assert.assertEquals(ResultCode.INVALID_CREDENTIALS, result);
+		Assert.assertEquals(ResultCode.INVALID_PASSWORD, result);
 
 		Mockito.verify(databaseModel, Mockito.never()).setUserPassword(Mockito.anyInt(), Mockito.any(UserPassword.class));
 	}
@@ -326,7 +326,7 @@ public class UserManagerTest {
 		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(storedUser);
 
 		ResultCode result = userManager.logIn("john@example.com", "wrong_password");
-		Assert.assertEquals(ResultCode.INVALID_CREDENTIALS, result);
+		Assert.assertEquals(ResultCode.INVALID_PASSWORD, result);
 
 		Mockito.verify(sessionModel, Mockito.never()).setCurrentUser(Mockito.notNull(User.class));
 
