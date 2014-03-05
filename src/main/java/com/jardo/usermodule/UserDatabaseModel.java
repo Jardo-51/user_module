@@ -1,6 +1,5 @@
 package com.jardo.usermodule;
 
-import java.net.InetAddress;
 import java.util.Date;
 
 import com.jardo.usermodule.containers.PasswordResetToken;
@@ -159,7 +158,7 @@ public interface UserDatabaseModel {
 	 *            users ip address
 	 * @return True on success, otherwise false.
 	 */
-	boolean makeLogInRecord(int userId, boolean logInSuccessful, InetAddress usersIp);
+	boolean makeLogInRecord(int userId, boolean logInSuccessful, String usersIp);
 
 	/**
 	 * Sets a new password for the user with the specified id.

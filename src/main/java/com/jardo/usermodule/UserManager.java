@@ -1,7 +1,6 @@
 package com.jardo.usermodule;
 
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -44,7 +43,7 @@ public class UserManager implements Serializable {
 		return toHex(bytes);
 	}
 
-	private boolean makeLogInRecord(int userId, boolean logInSuccessfull, InetAddress usersIp) {
+	private boolean makeLogInRecord(int userId, boolean logInSuccessfull, String usersIp) {
 		return databaseModel.makeLogInRecord(userId, logInSuccessfull, usersIp);
 	}
 
@@ -214,7 +213,7 @@ public class UserManager implements Serializable {
 		return storedPassword.getHash().equalsIgnoreCase(hash);
 	}
 
-	public ResultCode logIn(String userNameOrEmail, String password, InetAddress usersIp) {
+	public ResultCode logIn(String userNameOrEmail, String password, String usersIp) {
 
 		User user;
 

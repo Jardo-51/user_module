@@ -1,7 +1,5 @@
 package com.jardo.usermodule;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -34,7 +32,7 @@ public class UserManagerTest {
 
 	private UserManager userManager;
 
-	private InetAddress inetAddress;
+	private String inetAddress;
 
 	private final UserPassword storedPassword;
 
@@ -68,12 +66,7 @@ public class UserManagerTest {
 		storedUser = new User(1, "John", "john@example.com", "5658ffccee7f0ebfda2b226238b1eb6e", true, storedPassword, UserRanks.NORMAL_USER);
 		userWithUnfinishedRegistration = new User(2, "Carl", "carl@example.com", "0b0606b79c0bb1babe52bbfdd4ae8e7f", false, storedPassword, UserRanks.NORMAL_USER);
 
-		try {
-			inetAddress = InetAddress.getByName("127.0.0.1");
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			inetAddress = null;
-		}
+		inetAddress = "127.0.0.1";
 
 		try {
 			this.sha256 = MessageDigest.getInstance("SHA-256");
@@ -318,7 +311,7 @@ public class UserManagerTest {
 		Mockito.verify(sessionModel).setCurrentUser(userCaptor.capture());
 		Assert.assertSame(storedUser, userCaptor.getValue());
 
-		ArgumentCaptor<InetAddress> ipCaptor = ArgumentCaptor.forClass(InetAddress.class);
+		ArgumentCaptor<String> ipCaptor = ArgumentCaptor.forClass(String.class);
 		Mockito.verify(databaseModel).makeLogInRecord(Mockito.eq(1), Mockito.eq(true), ipCaptor.capture());
 		Assert.assertSame(inetAddress, ipCaptor.getValue());
 
@@ -342,7 +335,7 @@ public class UserManagerTest {
 
 		Mockito.verify(sessionModel, Mockito.never()).setCurrentUser(Mockito.notNull(User.class));
 
-		ArgumentCaptor<InetAddress> ipCaptor = ArgumentCaptor.forClass(InetAddress.class);
+		ArgumentCaptor<String> ipCaptor = ArgumentCaptor.forClass(String.class);
 		Mockito.verify(databaseModel).makeLogInRecord(Mockito.eq(1), Mockito.eq(false), ipCaptor.capture());
 		Assert.assertSame(inetAddress, ipCaptor.getValue());
 	}
@@ -368,7 +361,7 @@ public class UserManagerTest {
 		Mockito.verify(sessionModel).setCurrentUser(userCaptor.capture());
 		Assert.assertSame(storedUser, userCaptor.getValue());
 
-		Mockito.verify(databaseModel, Mockito.never()).makeLogInRecord(Mockito.anyInt(), Mockito.anyBoolean(), Mockito.any(InetAddress.class));
+		Mockito.verify(databaseModel, Mockito.never()).makeLogInRecord(Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString());
 		Mockito.verify(databaseModel, Mockito.never()).cancelAllPasswordResetTokens(Mockito.anyInt());
 	}
 
@@ -401,7 +394,7 @@ public class UserManagerTest {
 		Mockito.verify(sessionModel).setCurrentUser(userCaptor.capture());
 		Assert.assertSame(storedUser, userCaptor.getValue());
 
-		Mockito.verify(databaseModel, Mockito.never()).makeLogInRecord(Mockito.anyInt(), Mockito.anyBoolean(), Mockito.any(InetAddress.class));
+		Mockito.verify(databaseModel, Mockito.never()).makeLogInRecord(Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString());
 		Mockito.verify(databaseModel, Mockito.never()).cancelAllPasswordResetTokens(Mockito.anyInt());
 	}
 
@@ -416,7 +409,7 @@ public class UserManagerTest {
 		Mockito.verify(sessionModel).setCurrentUser(userCaptor.capture());
 		Assert.assertSame(storedUser, userCaptor.getValue());
 
-		ArgumentCaptor<InetAddress> ipCaptor = ArgumentCaptor.forClass(InetAddress.class);
+		ArgumentCaptor<String> ipCaptor = ArgumentCaptor.forClass(String.class);
 		Mockito.verify(databaseModel).makeLogInRecord(Mockito.eq(1), Mockito.eq(true), ipCaptor.capture());
 		Assert.assertSame(inetAddress, ipCaptor.getValue());
 
