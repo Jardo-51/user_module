@@ -219,12 +219,11 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	public void testMakeLogInRecord() throws DatabaseUnitException, SQLException, Exception {
 		fillDatabase("userDatabaseModelHbnTest/beforeMakeLogInRecord.xml");
 
-		InetAddress ip = InetAddress.getByName("195.210.29.1");
-		databaseModel.makeLogInRecord(1, false, ip);
-		databaseModel.makeLogInRecord(2, true, ip);
+		databaseModel.makeLogInRecord(1, false, "0000:0000:0000:0000:0000:0000:192.168.255.255");
+		databaseModel.makeLogInRecord(2, true, "195.210.29.1");
 
 		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterMakeLoginRecord.xml");
-		assertTableContent(expectedDataSet, "um_login_record", new String[] { "date_time", "ip" });
+		assertTableContent(expectedDataSet, "um_login_record", new String[] { "date_time" });
 	}
 
 	@Test

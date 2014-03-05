@@ -1,7 +1,6 @@
 package com.jardo.usermodule.hbn.entities;
 
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -33,8 +32,8 @@ public class LogInRecordEntity {
 	@Column(name = "date_time")
 	Date time;
 
-	@Column(name = "ip")
-	private InetAddress ip;
+	@Column(name = "ip", length = 45)
+	private String ip;
 
 	@Column(name = "successful")
 	private boolean successful;
@@ -55,11 +54,11 @@ public class LogInRecordEntity {
 		this.time = time;
 	}
 
-	public InetAddress getIp() {
+	public String getIp() {
 		return ip;
 	}
 
-	public void setIp(InetAddress ip) {
+	public void setIp(String ip) {
 		this.ip = ip;
 	}
 

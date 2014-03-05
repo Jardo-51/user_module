@@ -1,6 +1,5 @@
 package com.jardo.usermodule.hbn;
 
-import java.net.InetAddress;
 import java.util.Date;
 
 import org.hibernate.Session;
@@ -162,7 +161,7 @@ public class UserDatabaseModelHbn implements UserDatabaseModel {
 		return result;
 	}
 
-	public boolean makeLogInRecord(int userId, boolean logInSuccessfull, InetAddress usersIp) {
+	public boolean makeLogInRecord(int userId, boolean logInSuccessfull, String usersIp) {
 
 		UserEntity user = new UserEntity();
 		user.setId(userId);
