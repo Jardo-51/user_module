@@ -1,4 +1,4 @@
-package com.jardo.usermodule.hbn.entities;
+package com.jardoapps.usermodule.hbn.entities;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,7 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.jardo.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.PasswordResetToken;
 
 class PasswordResetTokenEntityPrimaryKey implements Serializable {
 	private static final long serialVersionUID = 1L;

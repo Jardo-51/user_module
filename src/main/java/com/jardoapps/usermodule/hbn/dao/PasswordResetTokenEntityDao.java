@@ -1,9 +1,9 @@
-package com.jardo.usermodule.hbn.dao;
+package com.jardoapps.usermodule.hbn.dao;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import com.jardo.usermodule.hbn.entities.PasswordResetTokenEntity;
+import com.jardoapps.usermodule.hbn.entities.PasswordResetTokenEntity;
 
 public class PasswordResetTokenEntityDao extends CommonDao<PasswordResetTokenEntity> {
 

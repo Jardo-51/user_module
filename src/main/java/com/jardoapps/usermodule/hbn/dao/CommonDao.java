@@ -1,4 +1,4 @@
-package com.jardo.usermodule.hbn.dao;
+package com.jardoapps.usermodule.hbn.dao;
 
 import org.hibernate.Session;
 

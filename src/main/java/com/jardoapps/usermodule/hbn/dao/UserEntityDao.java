@@ -1,12 +1,12 @@
-package com.jardo.usermodule.hbn.dao;
+package com.jardoapps.usermodule.hbn.dao;
 
 import java.util.Date;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 
-import com.jardo.usermodule.containers.UserPassword;
-import com.jardo.usermodule.hbn.entities.UserEntity;
+import com.jardoapps.usermodule.containers.UserPassword;
+import com.jardoapps.usermodule.hbn.entities.UserEntity;
 
 public class UserEntityDao extends CommonDao<UserEntity> {
 

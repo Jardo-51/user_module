@@ -1,4 +1,4 @@
-package com.jardo.usermodule.hbn.entities;
+package com.jardoapps.usermodule.hbn.entities;
 
 import java.util.Date;
 
@@ -8,8 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.jardo.usermodule.containers.User;
-import com.jardo.usermodule.containers.UserPassword;
+import com.jardoapps.usermodule.containers.User;
+import com.jardoapps.usermodule.containers.UserPassword;
 
 @Entity
 @Table(name = "um_user")

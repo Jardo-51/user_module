@@ -1,20 +1,20 @@
-package com.jardo.usermodule.hbn;
+package com.jardoapps.usermodule.hbn;
 
 import java.util.Date;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import com.jardo.usermodule.UserDatabaseModel;
-import com.jardo.usermodule.containers.PasswordResetToken;
-import com.jardo.usermodule.containers.User;
-import com.jardo.usermodule.containers.UserPassword;
-import com.jardo.usermodule.hbn.dao.LogInRecordEntityDao;
-import com.jardo.usermodule.hbn.dao.PasswordResetTokenEntityDao;
-import com.jardo.usermodule.hbn.dao.UserEntityDao;
-import com.jardo.usermodule.hbn.entities.LogInRecordEntity;
-import com.jardo.usermodule.hbn.entities.PasswordResetTokenEntity;
-import com.jardo.usermodule.hbn.entities.UserEntity;
+import com.jardoapps.usermodule.UserDatabaseModel;
+import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.User;
+import com.jardoapps.usermodule.containers.UserPassword;
+import com.jardoapps.usermodule.hbn.dao.LogInRecordEntityDao;
+import com.jardoapps.usermodule.hbn.dao.PasswordResetTokenEntityDao;
+import com.jardoapps.usermodule.hbn.dao.UserEntityDao;
+import com.jardoapps.usermodule.hbn.entities.LogInRecordEntity;
+import com.jardoapps.usermodule.hbn.entities.PasswordResetTokenEntity;
+import com.jardoapps.usermodule.hbn.entities.UserEntity;
 
 public class UserDatabaseModelHbn implements UserDatabaseModel {
 
