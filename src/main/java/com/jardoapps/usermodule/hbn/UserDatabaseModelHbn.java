@@ -1,5 +1,6 @@
 package com.jardoapps.usermodule.hbn;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.hibernate.Session;
@@ -16,7 +17,9 @@ import com.jardoapps.usermodule.hbn.entities.LogInRecordEntity;
 import com.jardoapps.usermodule.hbn.entities.PasswordResetTokenEntity;
 import com.jardoapps.usermodule.hbn.entities.UserEntity;
 
-public class UserDatabaseModelHbn implements UserDatabaseModel {
+public class UserDatabaseModelHbn implements UserDatabaseModel, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final SessionFactory sessionFactory;
 

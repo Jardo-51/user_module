@@ -1,5 +1,6 @@
 package com.jardoapps.usermodule.hbn.dao;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.hibernate.Query;
@@ -8,7 +9,9 @@ import org.hibernate.Session;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.hbn.entities.UserEntity;
 
-public class UserEntityDao extends CommonDao<UserEntity> {
+public class UserEntityDao extends CommonDao<UserEntity> implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public boolean confirmRegistration(Session session, String email) {
 		String queryStr = "UPDATE UserEntity u SET u.registrationConfirmed = true WHERE u.email = :email";
