@@ -1,4 +1,4 @@
-package com.jardo.usermodule.defines;
+package com.jardoapps.usermodule.defines;
 
 public enum EmailType {
 	LOST_PASSWORD,

@@ -1,4 +1,4 @@
-package com.jardo.usermodule;
+package com.jardoapps.usermodule;
 
 public class UserRanks {
 

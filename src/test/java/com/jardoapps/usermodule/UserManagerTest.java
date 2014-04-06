@@ -1,4 +1,4 @@
-package com.jardo.usermodule;
+package com.jardoapps.usermodule;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,10 +11,16 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import com.jardo.usermodule.containers.PasswordResetToken;
-import com.jardo.usermodule.containers.User;
-import com.jardo.usermodule.containers.UserPassword;
-import com.jardo.usermodule.defines.EmailType;
+import com.jardoapps.usermodule.EmailSender;
+import com.jardoapps.usermodule.ResultCode;
+import com.jardoapps.usermodule.SessionModel;
+import com.jardoapps.usermodule.UserDatabaseModel;
+import com.jardoapps.usermodule.UserManager;
+import com.jardoapps.usermodule.UserRanks;
+import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.User;
+import com.jardoapps.usermodule.containers.UserPassword;
+import com.jardoapps.usermodule.defines.EmailType;
 
 public class UserManagerTest {
 

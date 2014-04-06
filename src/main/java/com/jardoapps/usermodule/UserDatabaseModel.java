@@ -1,10 +1,10 @@
-package com.jardo.usermodule;
+package com.jardoapps.usermodule;
 
 import java.util.Date;
 
-import com.jardo.usermodule.containers.PasswordResetToken;
-import com.jardo.usermodule.containers.User;
-import com.jardo.usermodule.containers.UserPassword;
+import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.User;
+import com.jardoapps.usermodule.containers.UserPassword;
 
 public interface UserDatabaseModel {
 

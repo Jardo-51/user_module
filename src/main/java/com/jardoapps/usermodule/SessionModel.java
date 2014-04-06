@@ -1,6 +1,6 @@
-package com.jardo.usermodule;
+package com.jardoapps.usermodule;
 
-import com.jardo.usermodule.containers.User;
+import com.jardoapps.usermodule.containers.User;
 
 public interface SessionModel {
 

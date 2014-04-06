@@ -1,4 +1,4 @@
-package com.jardo.usermodule.containers;
+package com.jardoapps.usermodule.containers;
 
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package com.jardo.usermodule;
+package com.jardoapps.usermodule;
 
 import java.io.Serializable;
 import java.security.MessageDigest;
@@ -7,10 +7,10 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Properties;
 
-import com.jardo.usermodule.containers.PasswordResetToken;
-import com.jardo.usermodule.containers.User;
-import com.jardo.usermodule.containers.UserPassword;
-import com.jardo.usermodule.defines.EmailType;
+import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.User;
+import com.jardoapps.usermodule.containers.UserPassword;
+import com.jardoapps.usermodule.defines.EmailType;
 
 public class UserManager implements Serializable {
 
