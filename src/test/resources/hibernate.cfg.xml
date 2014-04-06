@@ -20,9 +20,9 @@
 		<property name="connection.pool_size">1</property>
 		<property name="current_session_context_class">thread</property>
 
-		<mapping class="com.jardo.usermodule.hbn.entities.UserEntity" />
-		<mapping class="com.jardo.usermodule.hbn.entities.PasswordResetTokenEntity" />
-		<mapping class="com.jardo.usermodule.hbn.entities.LogInRecordEntity" />
+		<mapping class="com.jardoapps.usermodule.hbn.entities.UserEntity" />
+		<mapping class="com.jardoapps.usermodule.hbn.entities.PasswordResetTokenEntity" />
+		<mapping class="com.jardoapps.usermodule.hbn.entities.LogInRecordEntity" />
 
 	</session-factory>
 </hibernate-configuration>
