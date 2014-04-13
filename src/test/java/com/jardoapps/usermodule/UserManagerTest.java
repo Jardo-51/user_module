@@ -11,12 +11,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import com.jardoapps.usermodule.EmailSender;
-import com.jardoapps.usermodule.ResultCode;
-import com.jardoapps.usermodule.SessionModel;
-import com.jardoapps.usermodule.UserDatabaseModel;
-import com.jardoapps.usermodule.UserManager;
-import com.jardoapps.usermodule.UserRanks;
 import com.jardoapps.usermodule.containers.PasswordResetToken;
 import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
@@ -38,7 +32,7 @@ public class UserManagerTest {
 
 	private UserManager userManager;
 
-	private String inetAddress;
+	private final String inetAddress;
 
 	private final UserPassword storedPassword;
 
@@ -522,6 +516,38 @@ public class UserManagerTest {
 		Assert.assertEquals(true, addedUser.isRegistrationConfirmed());
 
 		Mockito.verifyZeroInteractions(emailSender);
+	}
+
+	@Test
+	public void testRegisterUserManually() {
+
+		Mockito.when(databaseModel.isEmailRegistered("carl@example.com")).thenReturn(false);
+		Mockito.when(databaseModel.isUserNameRegistered("Carl")).thenReturn(false);
+		Mockito.when(databaseModel.addUser(Mockito.notNull(User.class))).thenReturn(2);
+		Mockito.when(emailSender.sendManualRegistrationEmail(Mockito.eq("carl@example.com"), Mockito.eq("Carl"), Mockito.eq(2), Mockito.notNull(String.class), Mockito.any(User.class))).thenReturn(true);
+
+		User registrator = storedUser;
+		Mockito.when(sessionModel.getCurrentUser()).thenReturn(registrator);
+
+		ResultCode result = userManager.registerUserManually("carl@example.com", "Carl", UserRanks.NORMAL_USER, false);
+		Assert.assertEquals(ResultCode.OK, result);
+
+		// check database model call
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		Mockito.verify(databaseModel).addUser(userCaptor.capture());
+
+		User addedUser = userCaptor.getValue();
+		Assert.assertEquals(-1, addedUser.getId());
+		Assert.assertEquals("carl@example.com", addedUser.getEmail());
+		Assert.assertEquals("Carl", addedUser.getName());
+		Assert.assertEquals(false, addedUser.isRegistrationConfirmed());
+		assertPasswordData("", addedUser.getPassword());
+		Assert.assertEquals(UserRanks.NORMAL_USER, addedUser.getRank());
+
+		// check email sender call
+
+		Mockito.verify(emailSender).sendManualRegistrationEmail("carl@example.com", "Carl", 2, addedUser.getRegistrationControlCode(), registrator);
 	}
 
 	@Test

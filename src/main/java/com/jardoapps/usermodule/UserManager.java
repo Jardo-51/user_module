@@ -30,6 +30,21 @@ public class UserManager implements Serializable {
 
 	private MessageDigest sha256;
 
+	private ResultCode checkPreRegistrationConditions(String userEmail, String userName) {
+
+		if (userName != null) {
+			if (databaseModel.isUserNameRegistered(userName)) {
+				return ResultCode.USER_NAME_ALREADY_REGISTERED;
+			}
+		}
+
+		if (databaseModel.isEmailRegistered(userEmail)) {
+			return ResultCode.EMAIL_ALREADY_REGISTERED;
+		}
+
+		return ResultCode.OK;
+	}
+
 	private UserPassword createUserPassword(String password) {
 		String salt = generatePasswordSalt();
 		String hash = calculatePasswordHash(password, salt);
@@ -280,14 +295,9 @@ public class UserManager implements Serializable {
 
 	public ResultCode registerUser(String email, String name, String password, boolean registrationConfirmed) {
 
-		if (name != null) {
-			if (databaseModel.isUserNameRegistered(name)) {
-				return ResultCode.USER_NAME_ALREADY_REGISTERED;
-			}
-		}
-
-		if (databaseModel.isEmailRegistered(email)) {
-			return ResultCode.EMAIL_ALREADY_REGISTERED;
+		ResultCode checkResult = checkPreRegistrationConditions(email, name);
+		if (checkResult != ResultCode.OK) {
+			return checkResult;
 		}
 
 		String controlCode = generateRandomMD5Hash();
@@ -307,6 +317,33 @@ public class UserManager implements Serializable {
 		}
 
 		if (emailSender.sendRegistrationEmail(email, name, newUserId, controlCode)) {
+			return ResultCode.OK;
+		} else {
+			return ResultCode.FAILED_TO_SEND_EMAIL;
+		}
+	}
+
+	public ResultCode registerUserManually(String email, String name, int rank, boolean registrationConfirmed) {
+
+		ResultCode checkResult = checkPreRegistrationConditions(email, name);
+		if (checkResult != ResultCode.OK) {
+			return checkResult;
+		}
+
+		String controlCode = generateRandomMD5Hash();
+
+		UserPassword userPassword = createUserPassword("");
+
+		User newUser = new User(-1, name, email, controlCode, registrationConfirmed, userPassword, rank);
+
+		int newUserId = databaseModel.addUser(newUser);
+		if (newUserId < 0) {
+			return ResultCode.DATABASE_ERROR;
+		}
+
+		User registrator = sessionModel.getCurrentUser();
+
+		if (emailSender.sendManualRegistrationEmail(email, name, newUserId, controlCode, registrator)) {
 			return ResultCode.OK;
 		} else {
 			return ResultCode.FAILED_TO_SEND_EMAIL;
@@ -367,6 +404,9 @@ public class UserManager implements Serializable {
 		switch (emailType) {
 			case REGISTRATION:
 				return emailSender.sendRegistrationEmail(address, "[userName]", 0, "63ab83e73fee9c2113f625fab4ac8c65");
+			case MANUAL_REGISTRATION:
+				User registrator = new User(0, "[adminName]", "admin@test.com", "", true, null, UserRanks.ADMIN);
+				return emailSender.sendManualRegistrationEmail(address, "[userName]", 0, "63ab83e73fee9c2113f625fab4ac8c65", registrator);
 			case LOST_PASSWORD:
 				return emailSender.sendLostPasswordEmail(address, "63ab83e73fee9c2113f625fab4ac8c65");
 			default:
