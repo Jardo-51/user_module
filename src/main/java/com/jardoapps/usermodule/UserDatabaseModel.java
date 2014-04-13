@@ -103,6 +103,7 @@ public interface UserDatabaseModel {
 	 *            name of the user which should be returned
 	 * @return User with the specified name or null, if no such user exists.
 	 * @see #getUserByEmail(String)
+	 * @see #getUserIdByEmail(String)
 	 */
 	User getUserByName(String name);
 
@@ -115,6 +116,7 @@ public interface UserDatabaseModel {
 	 * @return Id of user with the specified email address or -1, if no such
 	 *         user exists.
 	 * @see #getUserByEmail(String)
+	 * @see #getUserByName(String)
 	 */
 	int getUserIdByEmail(String email);
 
