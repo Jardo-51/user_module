@@ -30,6 +30,23 @@ public class UserManager implements Serializable {
 
 	private MessageDigest sha256;
 
+	private ResultCode checkRegistrationConfirmationPreconditions(User user, String registrationControlCode) {
+
+		if (user == null) {
+			return ResultCode.NO_SUCH_USER;
+		}
+
+		if (user.isRegistrationConfirmed()) {
+			return ResultCode.REGISTRATION_ALREADY_CONFIRMED;
+		}
+
+		if (!user.getRegistrationControlCode().equalsIgnoreCase(registrationControlCode)) {
+			return ResultCode.INVALID_REGISTRATION_CONTROL_CODE;
+		}
+
+		return ResultCode.OK;
+	}
+
 	private ResultCode checkRegistrationPreconditions(String userEmail, String userName) {
 
 		if (userName != null) {
@@ -138,19 +155,60 @@ public class UserManager implements Serializable {
 		return ResultCode.OK;
 	}
 
+	/**
+	 * Confirms new user registration which has been done manually by an
+	 * existing user (with method
+	 * {@link #registerUserManually(String, String, int, boolean)}).
+	 * 
+	 * @param email
+	 *            email of the newly registered user
+	 * @param registrationControlCode
+	 *            a security code which has been randomly generated during the
+	 *            manual registration. It's the same code which has been passed
+	 *            to the
+	 *            {@link EmailSender#sendManualRegistrationEmail(String, String, int, String, User)
+	 *            email sender} during the registration.
+	 * @param password
+	 *            the user which has been registered by an existing user doesn't
+	 *            have a specified password yet, so he needs to specify it when
+	 *            confirming the registration
+	 * @return {@link ResultCode#OK}, {@link ResultCode#NO_SUCH_USER},
+	 *         {@link ResultCode#REGISTRATION_ALREADY_CONFIRMED},
+	 *         {@link ResultCode#INVALID_REGISTRATION_CONTROL_CODE},
+	 *         {@link ResultCode#DATABASE_ERROR}
+	 * @see #registerUserManually(String, String, int, boolean)
+	 * @see #confirmRegistration(String, String)
+	 */
+	public ResultCode confirmManualRegistration(String email, String registrationControlCode, String password) {
+
+		User user = databaseModel.getUserByEmail(email);
+
+		ResultCode checkResult = checkRegistrationConfirmationPreconditions(user, registrationControlCode);
+		if (checkResult != ResultCode.OK) {
+			return checkResult;
+		}
+
+		boolean ok = databaseModel.confirmUserRegistration(email);
+		if (!ok) {
+			return ResultCode.DATABASE_ERROR;
+		}
+
+		UserPassword userPassword = createUserPassword(password);
+		ok = databaseModel.setUserPassword(user.getId(), userPassword);
+		if (!ok) {
+			return ResultCode.DATABASE_ERROR;
+		}
+
+		return ResultCode.OK;
+	}
+
 	public ResultCode confirmRegistration(String email, String registrationControlCode) {
 
 		User user = databaseModel.getUserByEmail(email);
-		if (user == null) {
-			return ResultCode.NO_SUCH_USER;
-		}
 
-		if (user.isRegistrationConfirmed()) {
-			return ResultCode.REGISTRATION_ALREADY_CONFIRMED;
-		}
-
-		if (!user.getRegistrationControlCode().equalsIgnoreCase(registrationControlCode)) {
-			return ResultCode.INVALID_REGISTRATION_CONTROL_CODE;
+		ResultCode checkResult = checkRegistrationConfirmationPreconditions(user, registrationControlCode);
+		if (checkResult != ResultCode.OK) {
+			return checkResult;
 		}
 
 		boolean ok = databaseModel.confirmUserRegistration(email);

@@ -165,6 +165,24 @@ public class UserManagerTest {
 	}
 
 	@Test
+	public void testConfirmManualRegistration() {
+		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(userWithUnfinishedRegistration);
+		Mockito.when(databaseModel.confirmUserRegistration("john@example.com")).thenReturn(true);
+		Mockito.when(databaseModel.setUserPassword(Mockito.eq(2), Mockito.any(UserPassword.class))).thenReturn(true);
+
+		ResultCode result = userManager.confirmManualRegistration("john@example.com", userWithUnfinishedRegistration.getRegistrationControlCode(), "password");
+		Assert.assertEquals(ResultCode.OK, result);
+
+		Mockito.verify(databaseModel).confirmUserRegistration("john@example.com");
+
+		ArgumentCaptor<UserPassword> passwordCaptor = ArgumentCaptor.forClass(UserPassword.class);
+		Mockito.verify(databaseModel).setUserPassword(Mockito.eq(2), passwordCaptor.capture());
+
+		UserPassword newPassword = passwordCaptor.getValue();
+		assertPasswordData("password", newPassword);
+	}
+
+	@Test
 	public void testConfirmRegistration() {
 		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(userWithUnfinishedRegistration);
 		Mockito.when(databaseModel.confirmUserRegistration("john@example.com")).thenReturn(true);
