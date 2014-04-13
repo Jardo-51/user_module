@@ -30,7 +30,7 @@ public class UserManager implements Serializable {
 
 	private MessageDigest sha256;
 
-	private ResultCode checkPreRegistrationConditions(String userEmail, String userName) {
+	private ResultCode checkRegistrationPreconditions(String userEmail, String userName) {
 
 		if (userName != null) {
 			if (databaseModel.isUserNameRegistered(userName)) {
@@ -295,7 +295,7 @@ public class UserManager implements Serializable {
 
 	public ResultCode registerUser(String email, String name, String password, boolean registrationConfirmed) {
 
-		ResultCode checkResult = checkPreRegistrationConditions(email, name);
+		ResultCode checkResult = checkRegistrationPreconditions(email, name);
 		if (checkResult != ResultCode.OK) {
 			return checkResult;
 		}
@@ -325,7 +325,7 @@ public class UserManager implements Serializable {
 
 	public ResultCode registerUserManually(String email, String name, int rank, boolean registrationConfirmed) {
 
-		ResultCode checkResult = checkPreRegistrationConditions(email, name);
+		ResultCode checkResult = checkRegistrationPreconditions(email, name);
 		if (checkResult != ResultCode.OK) {
 			return checkResult;
 		}
