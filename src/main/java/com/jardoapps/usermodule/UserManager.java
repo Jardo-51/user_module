@@ -11,6 +11,7 @@ import com.jardoapps.usermodule.containers.PasswordResetToken;
 import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.defines.EmailType;
+import com.jardoapps.usermodule.utils.EmailUtils;
 
 public class UserManager implements Serializable {
 
@@ -106,10 +107,6 @@ public class UserManager implements Serializable {
 		byte[] salt = new byte[32];
 		randomGenerator.nextBytes(salt);
 		return toHex(salt);
-	}
-
-	protected boolean isEmail(String string) {
-		return string.matches("[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})");
 	}
 
 	public ResultCode cancelPasswordResetTokens(int userId) {
@@ -290,7 +287,7 @@ public class UserManager implements Serializable {
 
 		User user;
 
-		if (isEmail(userNameOrEmail)) {
+		if (EmailUtils.isEmailValid(userNameOrEmail)) {
 			user = databaseModel.getUserByEmail(userNameOrEmail);
 		} else {
 			user = databaseModel.getUserByName(userNameOrEmail);
@@ -328,7 +325,7 @@ public class UserManager implements Serializable {
 
 		User user;
 
-		if (isEmail(userNameOrEmail)) {
+		if (EmailUtils.isEmailValid(userNameOrEmail)) {
 			user = databaseModel.getUserByEmail(userNameOrEmail);
 		} else {
 			user = databaseModel.getUserByName(userNameOrEmail);
