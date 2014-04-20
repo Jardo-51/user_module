@@ -14,7 +14,8 @@ public class EmailUtils {
 	/**
 	 * Check whether the given email matches the {@link #EMAIL_REGEX}. Note that
 	 * this method is <b>not</b> compliant with RFC 822. See documentation of
-	 * EMAIL_REGEX for more information.
+	 * EMAIL_REGEX for more information. Top level domain validity is not
+	 * checked.
 	 * 
 	 * @param email
 	 *            email address to check
