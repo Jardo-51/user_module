@@ -9,7 +9,7 @@ public class EmailUtils {
 	 * <code>user@localhost</code> is considered valid by RFC 822, but is
 	 * <b>not</b> considered suitable for user registration.
 	 */
-	public static final String EMAIL_REGEX = "[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
+	public static final String EMAIL_REGEX = "[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
 
 	/**
 	 * Check whether the given email matches the {@link #EMAIL_REGEX}. Note that

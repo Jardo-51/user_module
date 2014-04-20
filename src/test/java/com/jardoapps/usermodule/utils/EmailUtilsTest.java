@@ -21,6 +21,7 @@ public class EmailUtilsTest {
 		assertEquals(true, EmailUtils.isEmailValid("valid.user@example.com"));
 		assertEquals(true, EmailUtils.isEmailValid("valid-user@example.com"));
 		assertEquals(true, EmailUtils.isEmailValid("valid_user@example.com"));
+		assertEquals(true, EmailUtils.isEmailValid("validUser@exam-ple.com"));
 		assertEquals(true, EmailUtils.isEmailValid("valid.user@example.co.uk"));
 		assertEquals(true, EmailUtils.isEmailValid("Valid.User@example.co.uk"));
 		assertEquals(true, EmailUtils.isEmailValid("valid1.user2@example3.co.uk"));
