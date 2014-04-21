@@ -246,6 +246,10 @@ public class UserManager implements Serializable {
 		return sessionModel.getCurrentUser();
 	}
 
+	public int getPasswordResetTokenExpirationMinutes() {
+		return passwordResetTokenExpirationMinutes;
+	}
+
 	public int getRegisteredUserCount(Date since) {
 		return databaseModel.getRegisteredUserCount(since);
 	}
