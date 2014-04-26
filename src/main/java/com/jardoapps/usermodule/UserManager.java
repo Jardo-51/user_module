@@ -15,6 +15,7 @@ import com.jardoapps.usermodule.utils.EmailUtils;
 
 public class UserManager implements Serializable {
 
+	public static final String PROP_MIN_PASSWORD_LENGTH = "minPasswordLength";
 	public static final String PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = "passwordResetTokenExpirationMinutes";
 
 	private static final long serialVersionUID = 1L;
@@ -27,7 +28,7 @@ public class UserManager implements Serializable {
 
 	private int passwordResetTokenExpirationMinutes = 15;
 
-	private final int minPasswordLength = 6;
+	private int minPasswordLength = 6;
 
 	private SecureRandom randomGenerator;
 
@@ -87,6 +88,8 @@ public class UserManager implements Serializable {
 		String property = properties.getProperty(PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES, "15");
 		passwordResetTokenExpirationMinutes = Integer.parseInt(property);
 
+		property = properties.getProperty(PROP_MIN_PASSWORD_LENGTH, "6");
+		minPasswordLength = Integer.parseInt(property);
 	}
 
 	private String toHex(byte[] bytes) {
@@ -275,6 +278,10 @@ public class UserManager implements Serializable {
 
 	public User getCurrentUser() {
 		return sessionModel.getCurrentUser();
+	}
+
+	public int getMinPasswordLength() {
+		return minPasswordLength;
 	}
 
 	public int getPasswordResetTokenExpirationMinutes() {
