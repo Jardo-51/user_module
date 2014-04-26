@@ -27,6 +27,8 @@ public class UserManager implements Serializable {
 
 	private int passwordResetTokenExpirationMinutes = 15;
 
+	private final int minPasswordLength = 6;
+
 	private SecureRandom randomGenerator;
 
 	private MessageDigest sha256;
@@ -150,6 +152,35 @@ public class UserManager implements Serializable {
 		}
 
 		return ResultCode.OK;
+	}
+
+	/**
+	 * A convenience method for checking the password from user input during
+	 * registration, password changing, etc. Checks the following conditions (in
+	 * the exact order): <li>Password cannot be empty. <li>Password has at least
+	 * minimal length. <li>Password confirmation is not empty. <li>Password
+	 * confirmation matches password.
+	 * 
+	 */
+	public PasswordCheckResult checkPassword(String password, String passwordConfirmation) {
+
+		if (password == null || password.isEmpty()) {
+			return PasswordCheckResult.PASSWORD_EMPTY;
+		}
+
+		if (password.length() < minPasswordLength) {
+			return PasswordCheckResult.PASSWORD_TOO_SHORT;
+		}
+
+		if (passwordConfirmation == null || passwordConfirmation.isEmpty()) {
+			return PasswordCheckResult.PASSWORD_CONFIRMATION_EMPTY;
+		}
+
+		if (!passwordConfirmation.equals(password)) {
+			return PasswordCheckResult.PASSWORD_CONFIRMATION_MISMATCH;
+		}
+
+		return PasswordCheckResult.OK;
 	}
 
 	/**

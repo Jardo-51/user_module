@@ -165,6 +165,31 @@ public class UserManagerTest {
 	}
 
 	@Test
+	public void testCheckPassword() {
+
+		PasswordCheckResult result = userManager.checkPassword(null, null);
+		Assert.assertEquals(PasswordCheckResult.PASSWORD_EMPTY, result);
+
+		result = userManager.checkPassword("", null);
+		Assert.assertEquals(PasswordCheckResult.PASSWORD_EMPTY, result);
+
+		result = userManager.checkPassword("abcd", null);
+		Assert.assertEquals(PasswordCheckResult.PASSWORD_TOO_SHORT, result);
+
+		result = userManager.checkPassword("abcdef", null);
+		Assert.assertEquals(PasswordCheckResult.PASSWORD_CONFIRMATION_EMPTY, result);
+
+		result = userManager.checkPassword("abcdef", "");
+		Assert.assertEquals(PasswordCheckResult.PASSWORD_CONFIRMATION_EMPTY, result);
+
+		result = userManager.checkPassword("abcdef", "abcd");
+		Assert.assertEquals(PasswordCheckResult.PASSWORD_CONFIRMATION_MISMATCH, result);
+
+		result = userManager.checkPassword("abcdef", "abcdef");
+		Assert.assertEquals(PasswordCheckResult.OK, result);
+	}
+
+	@Test
 	public void testConfirmManualRegistration() {
 		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(userWithUnfinishedRegistration);
 		Mockito.when(databaseModel.confirmUserRegistration("john@example.com")).thenReturn(true);
