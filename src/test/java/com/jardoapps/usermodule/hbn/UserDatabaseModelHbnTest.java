@@ -1,6 +1,5 @@
 package com.jardoapps.usermodule.hbn;
 
-import java.net.InetAddress;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -12,7 +11,6 @@ import com.jardoapps.usermodule.UserRanks;
 import com.jardoapps.usermodule.containers.PasswordResetToken;
 import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
-import com.jardoapps.usermodule.hbn.UserDatabaseModelHbn;
 
 public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 
