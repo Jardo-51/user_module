@@ -7,6 +7,9 @@ import java.security.SecureRandom;
 import java.util.Date;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.jardoapps.usermodule.containers.PasswordResetToken;
 import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
@@ -14,6 +17,8 @@ import com.jardoapps.usermodule.defines.EmailType;
 import com.jardoapps.usermodule.utils.EmailUtils;
 
 public class UserManager implements Serializable {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
 	public static final String PROP_MIN_PASSWORD_LENGTH = "minPasswordLength";
 	public static final String PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = "passwordResetTokenExpirationMinutes";
@@ -80,7 +85,13 @@ public class UserManager implements Serializable {
 	}
 
 	private boolean makeLogInRecord(int userId, boolean logInSuccessfull, String usersIp) {
-		return databaseModel.makeLogInRecord(userId, logInSuccessfull, usersIp);
+
+		boolean result = databaseModel.makeLogInRecord(userId, logInSuccessfull, usersIp);
+		if (!result) {
+			LOGGER.warn("DB error: Failed to make login record: userId={}, ip={}, successfull={}", userId, usersIp, logInSuccessfull);
+		}
+
+		return result;
 	}
 
 	private void parseProperties(Properties properties) {
@@ -119,6 +130,7 @@ public class UserManager implements Serializable {
 		if (ok) {
 			return ResultCode.OK;
 		} else {
+			LOGGER.error("DB error: Failed to cancel password reset tokens for user with id={}.", userId);
 			return ResultCode.DATABASE_ERROR;
 		}
 	}
@@ -135,10 +147,12 @@ public class UserManager implements Serializable {
 			return ResultCode.INVALID_PASSWORD;
 		}
 
-		if (databaseModel.deleteUser(userId))
+		if (databaseModel.deleteUser(userId)) {
 			return ResultCode.OK;
-		else
+		} else {
+			LOGGER.error("DB error: Failed to delete user with id={}.", userId);
 			return ResultCode.DATABASE_ERROR;
+		}
 	}
 
 	public ResultCode changePassword(int userId, String oldPassword, String newPassword) {
@@ -151,6 +165,7 @@ public class UserManager implements Serializable {
 
 		boolean ok = databaseModel.setUserPassword(userId, userPassword);
 		if (!ok) {
+			LOGGER.error("DB error: Failed to set password for user with id={}.", userId);
 			return ResultCode.DATABASE_ERROR;
 		}
 
@@ -221,12 +236,14 @@ public class UserManager implements Serializable {
 
 		boolean ok = databaseModel.confirmUserRegistration(email);
 		if (!ok) {
+			LOGGER.error("DB error: Failed to confirm registration for email {}.", email);
 			return ResultCode.DATABASE_ERROR;
 		}
 
 		UserPassword userPassword = createUserPassword(password);
 		ok = databaseModel.setUserPassword(user.getId(), userPassword);
 		if (!ok) {
+			LOGGER.error("DB error: Failed to set password for user with id={}.", user.getId());
 			return ResultCode.DATABASE_ERROR;
 		}
 
@@ -244,6 +261,7 @@ public class UserManager implements Serializable {
 
 		boolean ok = databaseModel.confirmUserRegistration(email);
 		if (!ok) {
+			LOGGER.error("DB error: Failed to confirm registration for email {}.", email);
 			return ResultCode.DATABASE_ERROR;
 		}
 
@@ -257,19 +275,24 @@ public class UserManager implements Serializable {
 			return ResultCode.NO_SUCH_USER;
 		}
 
-		databaseModel.cancelAllPasswordResetTokens(userId);
+		boolean ok = databaseModel.cancelAllPasswordResetTokens(userId);
+		if (!ok) {
+			LOGGER.warn("DB error: Failed to cancel password reset tokens for user with id={}.", userId);
+		}
 
 		String tokenKey = generateRandomMD5Hash();
 
 		PasswordResetToken token = new PasswordResetToken(userId, tokenKey, new Date());
 
-		boolean ok = databaseModel.addPasswordResetToken(token);
+		ok = databaseModel.addPasswordResetToken(token);
 		if (!ok) {
+			LOGGER.error("DB error: Failed to create password reset token for user with id={}.", userId);
 			return ResultCode.DATABASE_ERROR;
 		}
 
 		ok = emailSender.sendLostPasswordEmail(email, tokenKey);
 		if (!ok) {
+			LOGGER.error("Email error: Failed to send lost password email to user with id={}.", userId);
 			return ResultCode.FAILED_TO_SEND_EMAIL;
 		}
 
@@ -351,7 +374,11 @@ public class UserManager implements Serializable {
 
 		sessionModel.setCurrentUser(user);
 		makeLogInRecord(user.getId(), true, usersIp);
-		databaseModel.cancelAllPasswordResetTokens(user.getId());
+
+		boolean ok = databaseModel.cancelAllPasswordResetTokens(user.getId());
+		if (!ok) {
+			LOGGER.warn("DB error: Failed to cancel password reset tokens for user with id={}.", user.getId());
+		}
 
 		return ResultCode.OK;
 	}
@@ -405,6 +432,7 @@ public class UserManager implements Serializable {
 
 		int newUserId = databaseModel.addUser(newUser);
 		if (newUserId < 0) {
+			LOGGER.error("DB error: Failed to add user: name={}, email={}.", name, email);
 			return ResultCode.DATABASE_ERROR;
 		}
 
@@ -416,6 +444,7 @@ public class UserManager implements Serializable {
 		if (emailSender.sendRegistrationEmail(email, name, newUserId, controlCode)) {
 			return ResultCode.OK;
 		} else {
+			LOGGER.error("Email error: Failed to send registration email to user with id={}.", newUserId);
 			return ResultCode.FAILED_TO_SEND_EMAIL;
 		}
 	}
@@ -435,6 +464,7 @@ public class UserManager implements Serializable {
 
 		int newUserId = databaseModel.addUser(newUser);
 		if (newUserId < 0) {
+			LOGGER.error("DB error: Failed to add user: name={}, email={}.", name, email);
 			return ResultCode.DATABASE_ERROR;
 		}
 
@@ -443,6 +473,7 @@ public class UserManager implements Serializable {
 		if (emailSender.sendManualRegistrationEmail(email, name, newUserId, controlCode, registrator)) {
 			return ResultCode.OK;
 		} else {
+			LOGGER.error("Email error: Failed to send manual registration email to user with id={}.", newUserId);
 			return ResultCode.FAILED_TO_SEND_EMAIL;
 		}
 	}
@@ -461,6 +492,7 @@ public class UserManager implements Serializable {
 		if (emailSender.sendRegistrationEmail(address, user.getName(), user.getId(), user.getRegistrationControlCode())) {
 			return ResultCode.OK;
 		} else {
+			LOGGER.error("Email error: Failed to re-send registration email to user with id={}.", user.getId());
 			return ResultCode.FAILED_TO_SEND_EMAIL;
 		}
 	}
@@ -482,6 +514,7 @@ public class UserManager implements Serializable {
 		if (databaseModel.setUserPassword(userId, userPassword)) {
 			return ResultCode.OK;
 		} else {
+			LOGGER.error("DB error: Failed to set password for user with id={}", userId);
 			return ResultCode.DATABASE_ERROR;
 		}
 	}
