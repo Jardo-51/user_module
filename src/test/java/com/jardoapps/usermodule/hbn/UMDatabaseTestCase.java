@@ -1,4 +1,4 @@
-package com.jardo.usermodule.hbn;
+package com.jardoapps.usermodule.hbn;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

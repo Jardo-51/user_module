@@ -1,4 +1,4 @@
-package com.jardo.usermodule.hbn;
+package com.jardoapps.usermodule.hbn;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
