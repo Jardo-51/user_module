@@ -1,36 +1,29 @@
 package com.jardoapps.usermodule.hbn.entities;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
 
-class PasswordResetTokenEntityPrimaryKey implements Serializable {
-	private static final long serialVersionUID = 1L;
-
-	protected UserEntity user;
-	protected Date time;
-}
-
 @Entity
-@IdClass(PasswordResetTokenEntityPrimaryKey.class)
 @Table(name = "um_password_reset_token")
 public class PasswordResetTokenEntity {
 
 	@Id
+	@GeneratedValue
+	long id;
+
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	UserEntity user;
 
-	@Id
 	@Column(name = "date_time")
 	Date time;
 
@@ -49,6 +42,14 @@ public class PasswordResetTokenEntity {
 		this.user.setId(passwordResetToken.getUserId());
 		this.time = passwordResetToken.getCreationTime();
 		this.key = passwordResetToken.getKey();
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	public UserEntity getUser() {

@@ -31,7 +31,7 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 		assertEquals(true, result);
 
 		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterAddPasswordResetToken.xml");
-		assertTableContent(expectedDataSet, "um_password_reset_token", new String[] { "date_time" });
+		assertTableContent(expectedDataSet, "um_password_reset_token", new String[] { "date_time", "id" });
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 		databaseModel.cancelAllPasswordResetTokens(1);
 
 		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterCancelAllPasswordResetTokens.xml");
-		assertTableContent(expectedDataSet, "um_password_reset_token", new String[] {});
+		assertTableContent(expectedDataSet, "um_password_reset_token", new String[] { "id" });
 	}
 
 	@Test
@@ -222,7 +222,7 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 		databaseModel.makeLogInRecord(2, true, "195.210.29.1");
 
 		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterMakeLoginRecord.xml");
-		assertTableContent(expectedDataSet, "um_login_record", new String[] { "date_time" });
+		assertTableContent(expectedDataSet, "um_login_record", new String[] { "date_time", "id" });
 	}
 
 	@Test
