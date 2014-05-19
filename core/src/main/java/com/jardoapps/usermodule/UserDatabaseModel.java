@@ -6,16 +6,21 @@ import com.jardoapps.usermodule.containers.PasswordResetToken;
 import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 
+/**
+ * This interface is used by {@link UserManager} to access the database.
+ * 
+ * @author Jaroslav Brtiš
+ */
 public interface UserDatabaseModel {
 
 	/**
-	 * Adds a new password reset token.
+	 * Adds a new password reset token. This token should be later accessible by
+	 * method {@link #getNewestPasswordResetToken(String)}, or could be canceled
+	 * by {@link #cancelAllPasswordResetTokens(int)}.
 	 * 
 	 * @param token
 	 *            token to be added
 	 * @return True on success, otherwise false.
-	 * @see #cancelAllPasswordResetTokens(int)
-	 * @see #getNewestPasswordResetToken(String)
 	 */
 	boolean addPasswordResetToken(PasswordResetToken token);
 
@@ -30,7 +35,9 @@ public interface UserDatabaseModel {
 	int addUser(User newUser);
 
 	/**
-	 * Cancels all password reset tokens for user with specified id.
+	 * Cancels all password reset tokens for user with specified id. The
+	 * canceled tokens should no longer be returned by method
+	 * {@link #getNewestPasswordResetToken(String)}.
 	 * 
 	 * @param userId
 	 *            id of user whose password reset tokens should be canceled
@@ -127,11 +134,14 @@ public interface UserDatabaseModel {
 	 *            id of user whose password should be returned
 	 * @return Password of user with the specified id or null, if no such user
 	 *         exists.
+	 * @see #setUserPassword(int, UserPassword)
 	 */
 	UserPassword getUserPassword(int userId);
 
 	/**
-	 * Check whether there is a user registered with the given email.
+	 * Check whether there is a user registered with the given email. The result
+	 * should be true also for registered users whose registration was not
+	 * confirmed yet.
 	 * 
 	 * @param email
 	 *            email address which should be checked
@@ -140,10 +150,12 @@ public interface UserDatabaseModel {
 	boolean isEmailRegistered(String email);
 
 	/**
-	 * Check whether there is a user registered with the given name.
+	 * Check whether there is a user registered with the given name. The result
+	 * should be true also for registered users whose registration was not
+	 * confirmed yet.
 	 * 
-	 * @param email
-	 *            email address which should be checked
+	 * @param name
+	 *            user name which should be checked
 	 * @return True if the user name is already registered, otherwise false.
 	 */
 	boolean isUserNameRegistered(String name);
@@ -152,8 +164,8 @@ public interface UserDatabaseModel {
 	 * Records a log in attempt for the user with specified id.
 	 * 
 	 * @param userId
-	 *            user which was trying to log in
-	 * @param logInSuccessfull
+	 *            user who was trying to log in
+	 * @param logInSuccessful
 	 *            information if the log in was successful or not (for instance
 	 *            wrong password)
 	 * @param usersIp
@@ -170,6 +182,7 @@ public interface UserDatabaseModel {
 	 * @param password
 	 *            password to be set
 	 * @return True on success, otherwise false.
+	 * @see #getUserPassword(int)
 	 */
 	boolean setUserPassword(int userId, UserPassword password);
 
