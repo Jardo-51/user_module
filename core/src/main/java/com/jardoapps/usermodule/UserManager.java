@@ -16,6 +16,14 @@ import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.defines.EmailType;
 import com.jardoapps.usermodule.utils.EmailUtils;
 
+/**
+ * The main class which contains all the user management logic such as user
+ * registration, user log in/out, password changing, password resetting and
+ * other.
+ * 
+ * @author Jaroslav Brtiš
+ * 
+ */
 public class UserManager implements Serializable {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
@@ -135,6 +143,21 @@ public class UserManager implements Serializable {
 		}
 	}
 
+	/**
+	 * Cancels registration of user with given id. This method is intended to be
+	 * called by the logged in user who wants to cancel his own registration and
+	 * therefore his password is required.
+	 * 
+	 * @param userId
+	 *            id of user whose registration is being canceled
+	 * @param password
+	 *            log in password of the user whose registration is being
+	 *            canceled
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#NO_SUCH_USER NO_SUCH_USER},
+	 *         {@link ResultCode#INVALID_PASSWORD INVALID_PASSWORD},
+	 *         {@link ResultCode#DATABASE_ERROR DATABASE_ERROR}
+	 */
 	public ResultCode cancelRegistration(int userId, String password) {
 
 		UserPassword storedPassword = databaseModel.getUserPassword(userId);
@@ -155,6 +178,21 @@ public class UserManager implements Serializable {
 		}
 	}
 
+	/**
+	 * Changes password for user with the given id. This method is intended to
+	 * be called by the logged in user who wants to change his own password and
+	 * therefore his old password is required.
+	 * 
+	 * @param userId
+	 *            id of user whose password is being changed
+	 * @param oldPassword
+	 *            current users password
+	 * @param newPassword
+	 *            new password
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#INVALID_PASSWORD INVALID_PASSWORD} (bad old
+	 *         password), {@link ResultCode#DATABASE_ERROR DATABASE_ERROR}
+	 */
 	public ResultCode changePassword(int userId, String oldPassword, String newPassword) {
 
 		if (!isPasswordValid(userId, oldPassword)) {
@@ -178,7 +216,6 @@ public class UserManager implements Serializable {
 	 * the exact order): <li>Password cannot be empty. <li>Password has at least
 	 * minimal length. <li>Password confirmation is not empty. <li>Password
 	 * confirmation matches password.
-	 * 
 	 */
 	public PasswordCheckResult checkPassword(String password, String passwordConfirmation) {
 
@@ -204,7 +241,8 @@ public class UserManager implements Serializable {
 	/**
 	 * Confirms new user registration which has been done manually by an
 	 * existing user (with method
-	 * {@link #registerUserManually(String, String, int, boolean)}).
+	 * {@link #registerUserManually(String, String, int, boolean)
+	 * registerUserManually}).
 	 * 
 	 * @param email
 	 *            email of the newly registered user
@@ -218,12 +256,17 @@ public class UserManager implements Serializable {
 	 *            the user which has been registered by an existing user doesn't
 	 *            have a specified password yet, so he needs to specify it when
 	 *            confirming the registration
-	 * @return {@link ResultCode#OK}, {@link ResultCode#NO_SUCH_USER},
-	 *         {@link ResultCode#REGISTRATION_ALREADY_CONFIRMED},
-	 *         {@link ResultCode#INVALID_REGISTRATION_CONTROL_CODE},
-	 *         {@link ResultCode#DATABASE_ERROR}
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#NO_SUCH_USER NO_SUCH_USER},
+	 *         {@link ResultCode#REGISTRATION_ALREADY_CONFIRMED
+	 *         REGISTRATION_ALREADY_CONFIRMED},
+	 *         {@link ResultCode#INVALID_REGISTRATION_CONTROL_CODE
+	 *         INVALID_REGISTRATION_CONTROL_CODE},
+	 *         {@link ResultCode#DATABASE_ERROR DATABASE_ERROR}
 	 * @see #registerUserManually(String, String, int, boolean)
 	 * @see #confirmRegistration(String, String)
+	 * @see EmailSender#sendManualRegistrationEmail(String, String, int, String,
+	 *      User)
 	 */
 	public ResultCode confirmManualRegistration(String email, String registrationControlCode, String password) {
 
@@ -250,6 +293,27 @@ public class UserManager implements Serializable {
 		return ResultCode.OK;
 	}
 
+	/**
+	 * Confirms the registration of the user who has registered himself.
+	 * 
+	 * @param email
+	 *            email which the user used to register his account
+	 * @param registrationControlCode
+	 *            a security code which has been randomly generated during the
+	 *            registration. It's the same code which has been passed to the
+	 *            {@link EmailSender#sendRegistrationEmail(String, String, int, String)
+	 *            email sender}.
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#NO_SUCH_USER NO_SUCH_USER},
+	 *         {@link ResultCode#REGISTRATION_ALREADY_CONFIRMED
+	 *         REGISTRATION_ALREADY_CONFIRMED},
+	 *         {@link ResultCode#INVALID_REGISTRATION_CONTROL_CODE
+	 *         INVALID_REGISTRATION_CONTROL_CODE},
+	 *         {@link ResultCode#DATABASE_ERROR DATABASE_ERROR}
+	 * @see #registerUser(String, String, String, boolean)
+	 * @see #confirmManualRegistration(String, String, String)
+	 * @see EmailSender#sendRegistrationEmail(String, String, int, String)
+	 */
 	public ResultCode confirmRegistration(String email, String registrationControlCode) {
 
 		User user = databaseModel.getUserByEmail(email);
@@ -268,6 +332,29 @@ public class UserManager implements Serializable {
 		return ResultCode.OK;
 	}
 
+	/**
+	 * Creates a special token which enables user who forgot his password to
+	 * reset it. A token is represented by a unique auto-generated key, which is
+	 * passed to {@link EmailSender#sendLostPasswordEmail(String, String) email
+	 * sender}. The email sender should send an email containing this key to the
+	 * user. This key needs to be passed to method
+	 * {@link #resetPassword(String, String, String) resetPassword}.
+	 * <p>
+	 * All created tokens become invalid in these cases:
+	 * <li>after a time period specified by property
+	 * {@link #PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES}.
+	 * <li>when the user requests a new password reset token
+	 * <li>when the user uses a valid token to reset his password
+	 * 
+	 * @param email
+	 *            email of the user who forgot his password
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#NO_SUCH_USER NO_SUCH_USER},
+	 *         {@link ResultCode#DATABASE_ERROR DATABASE_ERROR},
+	 *         {@link ResultCode#FAILED_TO_SEND_EMAIL FAILED_TO_SEND_EMAIL}
+	 * @see #resetPassword(String, String, String)
+	 * @see EmailSender#sendLostPasswordEmail(String, String)
+	 */
 	public ResultCode createPasswordResetToken(String email) {
 
 		int userId = databaseModel.getUserIdByEmail(email);
@@ -299,22 +386,58 @@ public class UserManager implements Serializable {
 		return ResultCode.OK;
 	}
 
+	/**
+	 * Returns user who is currently logged in.
+	 * 
+	 * @return user who is currently logged in or null, if no user is logged in
+	 */
 	public User getCurrentUser() {
 		return sessionModel.getCurrentUser();
 	}
 
+	/**
+	 * Returns value of property {@link #PROP_MIN_PASSWORD_LENGTH}.
+	 */
 	public int getMinPasswordLength() {
 		return minPasswordLength;
 	}
 
+	/**
+	 * Returns value of property
+	 * {@link #PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES}.
+	 */
 	public int getPasswordResetTokenExpirationMinutes() {
 		return passwordResetTokenExpirationMinutes;
 	}
 
+	/**
+	 * Returns number of users who have been registered since the specified
+	 * date.
+	 * 
+	 * @param since
+	 *            date since when to count registered users
+	 * @return number of users who have been registered since the specified date
+	 */
 	public int getRegisteredUserCount(Date since) {
 		return databaseModel.getRegisteredUserCount(since);
 	}
 
+	/**
+	 * Checks whether a password reset token is valid (can be used to reset
+	 * users password). If a password reset token is invalid, it cannot be used
+	 * to reset the password. See description of method
+	 * {@link #createPasswordResetToken(String)} for info on when password reset
+	 * tokens become invalid.
+	 * 
+	 * @param email
+	 *            email of the user who requested the password reset token
+	 * @param tokenKey
+	 *            auto generated token key which has been send to the user via
+	 *            email
+	 * @return true if the token is valid, otherwise false
+	 * @see #createPasswordResetToken(String)
+	 * @see #resetPassword(String, String, String)
+	 */
 	public boolean isPasswordResetTokenValid(String email, String tokenKey) {
 
 		PasswordResetToken token = databaseModel.getNewestPasswordResetToken(email);
@@ -521,8 +644,8 @@ public class UserManager implements Serializable {
 
 	/**
 	 * Sends a testing email of specified type (registration/lost password)
-	 * containing random fake data. It is intended to be called by web masters
-	 * to test/debug email sending functionality.
+	 * containing fake data. It is intended to be called by web masters to
+	 * test/debug email sending functionality.
 	 * 
 	 * @param emailType
 	 *            type of email to send (registration, lost password, ...)
