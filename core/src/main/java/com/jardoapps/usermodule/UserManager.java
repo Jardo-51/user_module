@@ -826,7 +826,7 @@ public class UserManager implements Serializable {
 			this.randomGenerator = SecureRandom.getInstance("SHA1PRNG");
 			this.sha256 = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			LOGGER.warn("Failed to create random generator.", e);
 		}
 
 		parseProperties(properties);
