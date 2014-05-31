@@ -672,7 +672,7 @@ public class UserManager implements Serializable {
 	 * @see EmailSender#sendManualRegistrationEmail(String, String, int, String,
 	 *      User)
 	 */
-	public ResultCode registerUserManually(String email, String name, int rank, boolean registrationConfirmed) {
+	public ResultCode registerUserManually(String email, String name, int rank) {
 
 		ResultCode checkResult = checkRegistrationPreconditions(email, name);
 		if (checkResult != ResultCode.OK) {
@@ -683,7 +683,7 @@ public class UserManager implements Serializable {
 
 		UserPassword userPassword = createUserPassword("");
 
-		User newUser = new User(-1, name, email, controlCode, registrationConfirmed, userPassword, rank);
+		User newUser = new User(-1, name, email, controlCode, false, userPassword, rank);
 
 		int newUserId = databaseModel.addUser(newUser);
 		if (newUserId < 0) {

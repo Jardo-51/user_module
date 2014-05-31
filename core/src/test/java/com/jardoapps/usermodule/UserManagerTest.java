@@ -572,7 +572,7 @@ public class UserManagerTest {
 		User registrator = storedUser;
 		Mockito.when(sessionModel.getCurrentUser()).thenReturn(registrator);
 
-		ResultCode result = userManager.registerUserManually("carl@example.com", "Carl", UserRanks.NORMAL_USER, false);
+		ResultCode result = userManager.registerUserManually("carl@example.com", "Carl", UserRanks.NORMAL_USER);
 		Assert.assertEquals(ResultCode.OK, result);
 
 		// check database model call
