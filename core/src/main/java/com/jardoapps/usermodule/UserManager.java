@@ -802,7 +802,7 @@ public class UserManager implements Serializable {
 
 	/**
 	 * Creates a new instance of UserManager. The constructor creates new
-	 * instances of random generators, which is a quite expensive operation, so
+	 * instances of random generators, which is quite an expensive operation, so
 	 * you should prefer creating and keeping just a single instance of
 	 * UserManager over creating a new instance every time you need its
 	 * functionality.
