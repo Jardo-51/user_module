@@ -459,6 +459,15 @@ public class UserManager implements Serializable {
 		return true;
 	}
 
+	/**
+	 * Checks whether the given password is valid for user with given id.
+	 * 
+	 * @param userId
+	 *            id of user to check
+	 * @param password
+	 *            password to check
+	 * @return true if password is valid, otherwise false
+	 */
 	public boolean isPasswordValid(int userId, String password) {
 
 		UserPassword storedPassword = databaseModel.getUserPassword(userId);
@@ -471,6 +480,27 @@ public class UserManager implements Serializable {
 		return storedPassword.getHash().equalsIgnoreCase(hash);
 	}
 
+	/**
+	 * Logs in a user with specified user name or email. A login record will be
+	 * made with information containing time, users ip, and whether the login
+	 * was successful or not. If the login is successful, all password reset
+	 * tokens for the logged-in user will be canceled.
+	 * 
+	 * @param userNameOrEmail
+	 *            user name or email of the user who is attempting to log in
+	 * @param password
+	 *            users password. The login will only be successful if the
+	 *            password is correct.
+	 * @param usersIp
+	 *            ip address from which the user is trying to log in. It will be
+	 *            part of the login record.
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#NO_SUCH_USER NO_SUCH_USER},
+	 *         {@link ResultCode#REGISTRATION_NOT_CONFIRMED REGISTRATION_NOT_CONFIRMED},
+	 *         {@link ResultCode#INVALID_PASSWORD INVALID_PASSWORD}
+	 * @see #logInWithoutPassword(String)
+	 * @see UserDatabaseModel#makeLogInRecord(int, boolean, String)
+	 */
 	public ResultCode logIn(String userNameOrEmail, String password, String usersIp) {
 
 		User user;
@@ -536,10 +566,46 @@ public class UserManager implements Serializable {
 		return ResultCode.OK;
 	}
 
+	/**
+	 * Logs out current user.
+	 */
 	public void logOut() {
 		sessionModel.setCurrentUser(null);
 	}
 
+	/**
+	 * Creates an account for with the specified email address. In order to
+	 * succeed, there must not already be an account registered with the given
+	 * email address.
+	 * 
+	 * @param email
+	 *            email address which will be used to register the new account
+	 * @param name
+	 *            name of the user who is registering the account, can be null.
+	 *            If its not null, there must not already be an account
+	 *            registered with the same name, otherwise the registration will
+	 *            fail.
+	 * @param password
+	 *            login password for the new account
+	 * @param registrationConfirmed
+	 *            specifies whether the registration will be confirmed. If true,
+	 *            the account will not require any confirmation and the user can
+	 *            immediately log in. If false, the user will not be able to log
+	 *            in to the newly created account until he
+	 *            {@link #confirmRegistration(String, String) confirms} his
+	 *            registration. In this case, a registration
+	 *            {@link EmailSender#sendRegistrationEmail(String, String, int, String)
+	 *            email} containing a randomly generated confirmation code will
+	 *            be sent to the given email address.
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#USER_NAME_ALREADY_REGISTERED USER_NAME_ALREADY_REGISTERED},
+	 *         {@link ResultCode#EMAIL_ALREADY_REGISTERED EMAIL_ALREADY_REGISTERED},
+	 *         {@link ResultCode#DATABASE_ERROR DATABASE_ERROR}
+	 *         {@link ResultCode#FAILED_TO_SEND_EMAIL FAILED_TO_SEND_EMAIL}
+	 * @see #confirmRegistration(String, String)
+	 * @see #registerUserManually(String, String, int, boolean)
+	 * @see EmailSender#sendRegistrationEmail(String, String, int, String)
+	 */
 	public ResultCode registerUser(String email, String name, String password, boolean registrationConfirmed) {
 
 		ResultCode checkResult = checkRegistrationPreconditions(email, name);
@@ -572,6 +638,40 @@ public class UserManager implements Serializable {
 		}
 	}
 
+	/**
+	 * This method is used to create new accounts by existing users (for
+	 * instance the web administrators). The new account will not have a defined
+	 * password and will be marked as "unconfirmed" (the user won't be able to
+	 * log in). In order for the user to log in, the registration has to be
+	 * confirmed via method {@link #confirmManualRegistration} which requires
+	 * the generated registration confirmation code, and a user specified
+	 * password. The confirmation code will be sent via
+	 * {@link EmailSender#sendManualRegistrationEmail(String, String, int, String, User)
+	 * email} to the specified email address.
+	 * 
+	 * @param email
+	 *            email address which will be used to register the new account
+	 * @param name
+	 *            name of the user who is registered with the given email
+	 *            address, can be null. If its not null, there must not already
+	 *            be an account registered with the same name, otherwise the
+	 *            registration will fail.
+	 * @param rank
+	 *            rank of the newly created user. This is just a convenience
+	 *            number to provide a primitive version of access control
+	 *            functionality. It does not affect any functionality of the
+	 *            user module in any way. You can use predefined constants in
+	 *            class {@link UserRanks}, or your own values.
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#USER_NAME_ALREADY_REGISTERED USER_NAME_ALREADY_REGISTERED},
+	 *         {@link ResultCode#EMAIL_ALREADY_REGISTERED EMAIL_ALREADY_REGISTERED},
+	 *         {@link ResultCode#DATABASE_ERROR DATABASE_ERROR}
+	 *         {@link ResultCode#FAILED_TO_SEND_EMAIL FAILED_TO_SEND_EMAIL}
+	 * @see #registerUser(String, String, String, boolean)
+	 * @see #confirmManualRegistration(String, String, String)
+	 * @see EmailSender#sendManualRegistrationEmail(String, String, int, String,
+	 *      User)
+	 */
 	public ResultCode registerUserManually(String email, String name, int rank, boolean registrationConfirmed) {
 
 		ResultCode checkResult = checkRegistrationPreconditions(email, name);
@@ -601,6 +701,19 @@ public class UserManager implements Serializable {
 		}
 	}
 
+	/**
+	 * Resends the registration email containing the registration control code
+	 * in case the email failed to send during registration, or if the user did
+	 * not receive the registration email for some reason.
+	 * 
+	 * @param address
+	 *            email address to which the email will be sent. There must be
+	 *            an account registered with the given address.
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#NO_SUCH_USER NO_SUCH_USER},
+	 *         {@link ResultCode#REGISTRATION_ALREADY_CONFIRMED REGISTRATION_ALREADY_CONFIRMED},
+	 *         {@link ResultCode#FAILED_TO_SEND_EMAIL FAILED_TO_SEND_EMAIL}
+	 */
 	public ResultCode resendRegistrationEmail(String address) {
 
 		User user = databaseModel.getUserByEmail(address);
@@ -620,6 +733,26 @@ public class UserManager implements Serializable {
 		}
 	}
 
+	/**
+	 * Enables the user who forgot their password to set a new password. In
+	 * order to reset their password, the user first needs to
+	 * {@link #createPasswordResetToken(String) request a password reset token}.
+	 * 
+	 * @param userEmail
+	 *            email address of the account which the user forgot the
+	 *            password to
+	 * @param tokenKey
+	 *            a random generated token key which has been send to the user
+	 *            via {@link EmailSender#sendLostPasswordEmail(String, String)
+	 *            email}
+	 * @param newPassword
+	 *            new password
+	 * @return {@link ResultCode#OK OK} on success or these possible errors:
+	 *         {@link ResultCode#NO_SUCH_USER NO_SUCH_USER},
+	 *         {@link ResultCode#DATABASE_ERROR DATABASE_ERROR}
+	 * @see #createPasswordResetToken(String)
+	 * @see EmailSender#sendLostPasswordEmail(String, String)
+	 */
 	public ResultCode resetPassword(String userEmail, String tokenKey, String newPassword) {
 
 		boolean tokenValid = isPasswordResetTokenValid(userEmail, tokenKey);
@@ -667,6 +800,23 @@ public class UserManager implements Serializable {
 		}
 	}
 
+	/**
+	 * Creates a new instance of UserManager. The constructor creates new
+	 * instances of random generators, which is a quite expensive operation, so
+	 * you should prefer creating and keeping just a single instance of
+	 * UserManager over creating a new instance every time you need its
+	 * functionality.
+	 * 
+	 * @param databaseModel
+	 *            an object instance used to access the database
+	 * @param emailSender
+	 *            an object instance used to send emails
+	 * @param sessionModel
+	 *            an object instance used to store data in a session (for
+	 *            instance the currently logged in user)
+	 * @param properties
+	 *            properties used to affect the default behaviour/settings
+	 */
 	public UserManager(UserDatabaseModel databaseModel, EmailSender emailSender, SessionModel sessionModel, Properties properties) {
 		this.databaseModel = databaseModel;
 		this.emailSender = emailSender;
