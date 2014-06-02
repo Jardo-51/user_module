@@ -644,6 +644,8 @@ public class UserManagerTest {
 
 		UserPassword newPassword = passwordCaptor.getValue();
 		assertPasswordData("new_password", newPassword);
+
+		Mockito.verify(databaseModel).cancelAllPasswordResetTokens(1);
 	}
 
 	@Test

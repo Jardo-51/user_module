@@ -767,12 +767,16 @@ public class UserManager implements Serializable {
 
 		UserPassword userPassword = createUserPassword(newPassword);
 
-		if (databaseModel.setUserPassword(userId, userPassword)) {
-			return ResultCode.OK;
-		} else {
+		if (!databaseModel.setUserPassword(userId, userPassword)) {
 			LOGGER.error("DB error: Failed to set password for user with id={}", userId);
 			return ResultCode.DATABASE_ERROR;
 		}
+
+		if (!databaseModel.cancelAllPasswordResetTokens(userId)) {
+			LOGGER.warn("DB error: Failed to cancel password reset tokens for user with id={}", userId);
+		}
+
+		return ResultCode.OK;
 	}
 
 	/**
