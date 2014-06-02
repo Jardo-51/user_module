@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
-import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.defines.EmailType;
 import com.jardoapps.usermodule.utils.EmailUtils;

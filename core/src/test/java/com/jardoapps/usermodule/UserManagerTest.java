@@ -12,7 +12,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
-import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.defines.EmailType;
 

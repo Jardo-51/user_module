@@ -8,7 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.jardoapps.usermodule.containers.User;
+import com.jardoapps.usermodule.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 
 @Entity

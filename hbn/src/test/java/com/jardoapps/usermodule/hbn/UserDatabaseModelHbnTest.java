@@ -7,9 +7,9 @@ import org.dbunit.DatabaseUnitException;
 import org.dbunit.dataset.IDataSet;
 import org.junit.Test;
 
+import com.jardoapps.usermodule.User;
 import com.jardoapps.usermodule.UserRanks;
 import com.jardoapps.usermodule.containers.PasswordResetToken;
-import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 
 public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {

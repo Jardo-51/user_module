@@ -3,7 +3,6 @@ package com.jardoapps.usermodule;
 import java.util.Date;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
-import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 
 /**

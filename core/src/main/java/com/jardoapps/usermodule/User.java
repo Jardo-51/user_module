@@ -1,4 +1,6 @@
-package com.jardoapps.usermodule.containers;
+package com.jardoapps.usermodule;
+
+import com.jardoapps.usermodule.containers.UserPassword;
 
 public class User {
 

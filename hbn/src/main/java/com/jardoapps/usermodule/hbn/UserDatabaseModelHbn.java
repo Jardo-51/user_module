@@ -6,9 +6,9 @@ import java.util.Date;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
+import com.jardoapps.usermodule.User;
 import com.jardoapps.usermodule.UserDatabaseModel;
 import com.jardoapps.usermodule.containers.PasswordResetToken;
-import com.jardoapps.usermodule.containers.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.hbn.dao.LogInRecordEntityDao;
 import com.jardoapps.usermodule.hbn.dao.PasswordResetTokenEntityDao;

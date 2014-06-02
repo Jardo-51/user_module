@@ -1,6 +1,5 @@
 package com.jardoapps.usermodule;
 
-import com.jardoapps.usermodule.containers.User;
 
 /**
  * This interface is used by {@link UserManager} to send emails.
