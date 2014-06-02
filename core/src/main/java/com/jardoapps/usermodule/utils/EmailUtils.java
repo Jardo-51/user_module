@@ -1,5 +1,11 @@
 package com.jardoapps.usermodule.utils;
 
+/**
+ * Class which provides functionality for working with email adresses.
+ * 
+ * @author Jaroslav Brtiš
+ * 
+ */
 public class EmailUtils {
 
 	/**
