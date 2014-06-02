@@ -2,6 +2,19 @@ package com.jardoapps.usermodule.containers;
 
 import java.util.Date;
 
+import com.jardoapps.usermodule.UserManager;
+
+/**
+ * Container class representing password reset tokens. Password reset tokens are
+ * used to set a new password if the user forgets his current password. They
+ * contain a random generated security code and creation date, so their validity
+ * can be limited to a specified time period. See
+ * {@link UserManager#createPasswordResetToken(String)} and
+ * {@link UserManager#resetPassword(String, String, String)} for more details.
+ * 
+ * @author Jaroslav Brtiš
+ * 
+ */
 public class PasswordResetToken {
 
 	private final int userId;

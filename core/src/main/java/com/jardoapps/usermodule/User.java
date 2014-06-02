@@ -2,6 +2,12 @@ package com.jardoapps.usermodule;
 
 import com.jardoapps.usermodule.containers.UserPassword;
 
+/**
+ * Class representing a registered user.
+ * 
+ * @author Jaroslav Brtiš
+ * 
+ */
 public class User {
 
 	private final int id;

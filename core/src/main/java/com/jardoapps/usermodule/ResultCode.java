@@ -1,5 +1,12 @@
 package com.jardoapps.usermodule;
 
+/**
+ * An enum containing all possible return values of methods in
+ * {@link UserManager}.
+ * 
+ * @author Jaroslav Brtiš
+ * 
+ */
 public enum ResultCode {
 	OK,
 	DATABASE_ERROR,
