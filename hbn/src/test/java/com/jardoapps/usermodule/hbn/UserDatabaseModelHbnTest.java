@@ -1,3 +1,21 @@
+/*
+ * This file is part of the User Module library.
+ * Copyright (C) 2014 Jaroslav Brtiš
+ *
+ * User Module library is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * User Module library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with User Module library. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.jardoapps.usermodule.hbn;
 
 import java.sql.SQLException;
@@ -38,7 +56,8 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	public void testAddUser() throws SQLException, Exception {
 		fillDatabase("userDatabaseModelHbnTest/beforeAddUser.xml");
 
-		UserPassword password = new UserPassword("ea1baa4cad9d822a51a1aa267a618fb2ac6d5d98a89709a595487ea493a69e90", "7886788cb39bf33c856ef18206a81ce4b498dc5a1a4199abc0cb0fb686eab008");
+		UserPassword password = new UserPassword("ea1baa4cad9d822a51a1aa267a618fb2ac6d5d98a89709a595487ea493a69e90",
+				"7886788cb39bf33c856ef18206a81ce4b498dc5a1a4199abc0cb0fb686eab008");
 		User user = new User(-1, "carl", "carl@test.com", "ea587b759f423f0bfadfe7aeba0ee3fe", false, password, UserRanks.NORMAL_USER);
 
 		int result = databaseModel.addUser(user);
@@ -229,7 +248,8 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 	public void testSetUserPassword() throws DatabaseUnitException, SQLException, Exception {
 		fillDatabase("userDatabaseModelHbnTest/beforeSetUserPassword.xml");
 
-		UserPassword password = new UserPassword("362ec39d4e116faba4f8727a5e8386cfc796cfe0d9f94ac048cf90ac0b33e571", "cda7fa19837cab6fc8fcefec2b8a4e2cfddd29fcbafffba420e262a41ac2a17f");
+		UserPassword password = new UserPassword("362ec39d4e116faba4f8727a5e8386cfc796cfe0d9f94ac048cf90ac0b33e571",
+				"cda7fa19837cab6fc8fcefec2b8a4e2cfddd29fcbafffba420e262a41ac2a17f");
 
 		// non-existing user
 		boolean result = databaseModel.setUserPassword(5, password);
