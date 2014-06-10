@@ -30,6 +30,14 @@ import javax.persistence.Table;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
 
+/**
+ * An entity class for representing password reset tokens.
+ * <p>
+ * This class is a part of this library's public API.
+ * 
+ * @author Jaroslav Brtiš
+ *
+ */
 @Entity
 @Table(name = "um_password_reset_token")
 public class PasswordResetTokenEntity {

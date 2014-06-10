@@ -35,6 +35,26 @@ import com.jardoapps.usermodule.hbn.entities.LogInRecordEntity;
 import com.jardoapps.usermodule.hbn.entities.PasswordResetTokenEntity;
 import com.jardoapps.usermodule.hbn.entities.UserEntity;
 
+/**
+ * A Hibernate implementation of the user database model. It uses internal entity 
+ * classes, which are a part of the user module library. In order to use this implementation,
+ * you have to tell Hibernate where are the entity classes.
+ * This can be done in the hibernate.cfg.xml file:
+ * <p>
+ * <code>
+ * {@literal <mapping class="com.jardoapps.usermodule.hbn.entities.UserEntity" />}<br>
+ * {@literal <mapping class="com.jardoapps.usermodule.hbn.entities.PasswordResetTokenEntity" />}<br>
+ * {@literal <mapping class="com.jardoapps.usermodule.hbn.entities.LogInRecordEntity" />}
+ * </code>
+ * <p>
+ * If you're using Spring, you can set the SessionFactory's packagesToScan property to
+ * <code>com.jardoapps.usermodule.hbn.entities</code>.
+ * <p>
+ * This class is a part of this library's public API.
+ * 
+ * @author Jaroslav Brtiš
+ * 
+ */
 public class UserDatabaseModelHbn implements UserDatabaseModel, Serializable {
 
 	private static final long serialVersionUID = 1L;

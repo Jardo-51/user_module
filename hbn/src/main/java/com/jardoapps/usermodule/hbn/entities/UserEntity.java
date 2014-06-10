@@ -29,6 +29,14 @@ import javax.persistence.Table;
 import com.jardoapps.usermodule.User;
 import com.jardoapps.usermodule.containers.UserPassword;
 
+/**
+ * An entity class for representing registered users.
+ * <p>
+ * This class is a part of this library's public API.
+ * 
+ * @author Jaroslav Brtiš
+ *
+ */
 @Entity
 @Table(name = "um_user")
 public class UserEntity {

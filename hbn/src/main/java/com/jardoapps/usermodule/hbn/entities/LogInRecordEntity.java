@@ -28,6 +28,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+/**
+ * An entity class for representing login records.
+ * <p>
+ * This class is a part of this library's public API.
+ * 
+ * @author Jaroslav Brtiš
+ *
+ */
 @Entity
 @Table(name = "um_login_record")
 public class LogInRecordEntity {
