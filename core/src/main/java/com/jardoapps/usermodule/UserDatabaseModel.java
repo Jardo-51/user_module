@@ -18,6 +18,7 @@
 
 package com.jardoapps.usermodule;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
@@ -28,7 +29,7 @@ import com.jardoapps.usermodule.containers.UserPassword;
  * 
  * @author Jaroslav Brtiš
  */
-public interface UserDatabaseModel {
+public interface UserDatabaseModel extends Serializable {
 
 	/**
 	 * Adds a new password reset token. This token should be later accessible by

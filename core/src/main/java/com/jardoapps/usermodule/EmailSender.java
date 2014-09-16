@@ -18,12 +18,14 @@
 
 package com.jardoapps.usermodule;
 
+import java.io.Serializable;
+
 /**
  * This interface is used by {@link UserManager} to send emails.
  * 
  * @author Jaroslav Brtiš
  */
-public interface EmailSender {
+public interface EmailSender extends Serializable {
 
 	/**
 	 * Sends a "password reset" email to the user who has forgot his password.

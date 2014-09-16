@@ -18,13 +18,15 @@
 
 package com.jardoapps.usermodule;
 
+import java.io.Serializable;
+
 /**
  * This interface is used by {@link UserManager} to store data (like the
  * currently logged in user) in a server-side session.
  * 
  * @author Jaroslav Brtiš
  */
-public interface SessionModel {
+public interface SessionModel extends Serializable {
 
 	/**
 	 * Returns user who is currently logged in.
