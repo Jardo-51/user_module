@@ -69,20 +69,12 @@ public class UserEntityDao extends CommonDao<UserEntity> implements Serializable
 	}
 
 	public UserPassword getUserPassword(Session session, int userId) {
-		String queryStr = "SELECT u.passwordHash, u.passwordSalt FROM UserEntity u WHERE u.id= :id AND u.deleted = false";
+		String queryStr = String.format("SELECT new %s(u.passwordHash, u.passwordSalt) FROM UserEntity u WHERE u.id= :id AND u.deleted = false", UserPassword.class.getName());
 
 		Query query = session.createQuery(queryStr);
 		query.setParameter("id", userId);
 
-		Object result[] = (Object[]) query.uniqueResult();
-		if (result == null) {
-			return null;
-		}
-
-		String hash = (String) result[0];
-		String salt = (String) result[1];
-
-		return new UserPassword(hash, salt);
+		return (UserPassword) query.uniqueResult();
 	}
 
 	public boolean deleteUserEntity(Session session, int userId) {
