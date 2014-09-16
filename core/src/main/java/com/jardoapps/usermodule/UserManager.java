@@ -45,6 +45,10 @@ public class UserManager implements Serializable {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
+	private static final byte MD5_HASH_LENGTH = 16;
+	private static final long MILIS_IN_MINUTE = 60000L;
+	private static final byte PASSWORD_SALT_LENGTH = 32;
+
 	public static final String PROP_MIN_PASSWORD_LENGTH = "minPasswordLength";
 	public static final String PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = "passwordResetTokenExpirationMinutes";
 
@@ -104,7 +108,7 @@ public class UserManager implements Serializable {
 	}
 
 	private String generateRandomMD5Hash() {
-		byte[] bytes = new byte[16];
+		byte[] bytes = new byte[MD5_HASH_LENGTH];
 		randomGenerator.nextBytes(bytes);
 		return toHex(bytes);
 	}
@@ -145,7 +149,7 @@ public class UserManager implements Serializable {
 	}
 
 	protected String generatePasswordSalt() {
-		byte[] salt = new byte[32];
+		byte[] salt = new byte[PASSWORD_SALT_LENGTH];
 		randomGenerator.nextBytes(salt);
 		return toHex(salt);
 	}
@@ -466,7 +470,7 @@ public class UserManager implements Serializable {
 			return false;
 		}
 
-		long tokenExpiration = token.getCreationTime().getTime() + passwordResetTokenExpirationMinutes * 60000L;
+		long tokenExpiration = token.getCreationTime().getTime() + passwordResetTokenExpirationMinutes * MILIS_IN_MINUTE;
 		long now = new Date().getTime();
 
 		if (now > tokenExpiration) {
