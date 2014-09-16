@@ -51,4 +51,9 @@ public class EmailUtils {
 		}
 		return email.matches(EMAIL_REGEX);
 	}
+
+	private EmailUtils() {
+
+	}
+
 }

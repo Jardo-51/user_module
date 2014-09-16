@@ -36,4 +36,8 @@ public class UserRanks {
 	public static final int ADMIN = 400;
 	public static final int WEBMASTER = 500;
 
+	private UserRanks () {
+
+	}
+
 }
