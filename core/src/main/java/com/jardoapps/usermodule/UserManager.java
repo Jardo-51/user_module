@@ -18,6 +18,8 @@
 
 package com.jardoapps.usermodule;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -66,7 +68,7 @@ public class UserManager implements Serializable {
 
 	private SecureRandom randomGenerator;
 
-	private MessageDigest sha256;
+	private transient MessageDigest sha256;
 
 	private ResultCode checkRegistrationConfirmationPreconditions(User user, String registrationControlCode) {
 
@@ -592,6 +594,15 @@ public class UserManager implements Serializable {
 	 */
 	public void logOut() {
 		sessionModel.setCurrentUser(null);
+	}
+
+	public void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		in.defaultReadObject();
+		try {
+			sha256 = MessageDigest.getInstance("SHA-256");
+		} catch (NoSuchAlgorithmException e) {
+			LOGGER.error("Failed to create password hasher.", e);
+		}
 	}
 
 	/**
