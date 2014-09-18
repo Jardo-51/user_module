@@ -240,7 +240,7 @@ public class UserDatabaseModelHbnTest extends UMDatabaseTestCase {
 		databaseModel.makeLogInRecord(1, false, "0000:0000:0000:0000:0000:0000:192.168.255.255");
 		databaseModel.makeLogInRecord(2, true, "195.210.29.1");
 
-		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterMakeLoginRecord.xml");
+		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterMakeLogInRecord.xml");
 		assertTableContent(expectedDataSet, "um_login_record", new String[] { "date_time", "id" });
 	}
 
