@@ -28,7 +28,7 @@ package com.jardoapps.usermodule;
  * @author Jaroslav Brtiš
  * 
  */
-public class UserRanks {
+public final class UserRanks {
 
 	public static final int DEMO_USER = 100;
 	public static final int NORMAL_USER = 200;

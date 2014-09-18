@@ -24,7 +24,7 @@ package com.jardoapps.usermodule.utils;
  * @author Jaroslav Brtiš
  * 
  */
-public class EmailUtils {
+public final class EmailUtils {
 
 	/**
 	 * Regex for checking email validity. It is designed primarily to determine
