@@ -21,6 +21,7 @@ package com.jardoapps.usermodule;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -45,11 +46,20 @@ import com.jardoapps.usermodule.utils.EmailUtils;
  */
 public class UserManager implements Serializable {
 
+	public static class FatalException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+		public FatalException(String message, Throwable e) {
+			super(message, e);
+		}
+	}
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserManager.class);
 
 	private static final byte MD5_HASH_LENGTH = 16;
 	private static final long MILIS_IN_MINUTE = 60000L;
 	private static final byte PASSWORD_SALT_LENGTH = 32;
+
+	private static final String PASSWORD_HASH_ENCODING = "UTF-8";
 
 	public static final String PROP_MIN_PASSWORD_LENGTH = "minPasswordLength";
 	public static final String PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = "passwordResetTokenExpirationMinutes";
@@ -146,8 +156,12 @@ public class UserManager implements Serializable {
 	}
 
 	protected String calculatePasswordHash(String password, String salt) {
-		sha256.update(salt.getBytes());
-		return toHex(sha256.digest(password.getBytes()));
+		try {
+			sha256.update(salt.getBytes(PASSWORD_HASH_ENCODING));
+			return toHex(sha256.digest(password.getBytes(PASSWORD_HASH_ENCODING)));
+		} catch (UnsupportedEncodingException e) {
+			throw new FatalException("The system doesn't support password hash encoding: " + PASSWORD_HASH_ENCODING, e);
+		}
 	}
 
 	protected String generatePasswordSalt() {
