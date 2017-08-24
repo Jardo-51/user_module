@@ -21,18 +21,22 @@ package com.jardoapps.usermodule;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.Properties;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.defines.EmailType;
 
+@RunWith(MockitoJUnitRunner.class)
 public class UserManagerTest {
 
 	private static final long ONE_DAY = 86400000L;
@@ -41,12 +45,19 @@ public class UserManagerTest {
 	private static final String STORED_PASSWORD_HASH = "EA1BAA4CAD9D822A51A1AA267A618FB2AC6D5D98A89709A595487EA493A69E90";
 	private static final String STORED_PASSWORD_SALT = "7886788CB39BF33C856EF18206A81CE4B498DC5A1A4199ABC0CB0FB686EAB008";
 
+	@Spy
+	private UserManagementProperties properties = new UserManagementPropertiesImpl();
+
+	@Mock
 	private EmailSender emailSender;
 
+	@Mock
 	private UserDatabaseModel databaseModel;
 
+	@Mock
 	private SessionModel sessionModel;
 
+	@InjectMocks
 	private UserManager userManager;
 
 	private final String inetAddress;
@@ -91,18 +102,6 @@ public class UserManagerTest {
 			e.printStackTrace();
 			this.sha256 = null;
 		}
-	}
-
-	@Before
-	public void setUp() throws Exception {
-		databaseModel = Mockito.mock(UserDatabaseModel.class);
-		emailSender = Mockito.mock(EmailSender.class);
-		sessionModel = Mockito.mock(SessionModel.class);
-
-		Properties properties = new Properties();
-		properties.setProperty(UserManager.PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES, "15");
-
-		userManager = new UserManager(databaseModel, emailSender, sessionModel, properties);
 	}
 
 	@Test

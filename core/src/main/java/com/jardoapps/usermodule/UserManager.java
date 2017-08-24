@@ -26,7 +26,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
-import java.util.Properties;
+
+import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,20 +62,19 @@ public class UserManager implements Serializable {
 
 	private static final String PASSWORD_HASH_ENCODING = "UTF-8";
 
-	public static final String PROP_MIN_PASSWORD_LENGTH = "minPasswordLength";
-	public static final String PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = "passwordResetTokenExpirationMinutes";
-
 	private static final long serialVersionUID = 1L;
 
-	private final UserDatabaseModel databaseModel;
+	@Inject
+	private UserManagementProperties properties;
 
-	private final EmailSender emailSender;
+	@Inject
+	private UserDatabaseModel databaseModel;
 
-	private final SessionModel sessionModel;
+	@Inject
+	private EmailSender emailSender;
 
-	private int passwordResetTokenExpirationMinutes = 15;
-
-	private int minPasswordLength = 6;
+	@Inject
+	private SessionModel sessionModel;
 
 	private SecureRandom randomGenerator;
 
@@ -133,15 +133,6 @@ public class UserManager implements Serializable {
 		}
 
 		return result;
-	}
-
-	private void parseProperties(Properties properties) {
-
-		String property = properties.getProperty(PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES, "15");
-		passwordResetTokenExpirationMinutes = Integer.parseInt(property);
-
-		property = properties.getProperty(PROP_MIN_PASSWORD_LENGTH, "6");
-		minPasswordLength = Integer.parseInt(property);
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -269,7 +260,7 @@ public class UserManager implements Serializable {
 			return PasswordCheckResult.PASSWORD_EMPTY;
 		}
 
-		if (password.length() < minPasswordLength) {
+		if (password.length() < properties.getMinPasswordLength()) {
 			return PasswordCheckResult.PASSWORD_TOO_SHORT;
 		}
 
@@ -442,21 +433,6 @@ public class UserManager implements Serializable {
 	}
 
 	/**
-	 * Returns value of property {@link #PROP_MIN_PASSWORD_LENGTH}.
-	 */
-	public int getMinPasswordLength() {
-		return minPasswordLength;
-	}
-
-	/**
-	 * Returns value of property
-	 * {@link #PROP_PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES}.
-	 */
-	public int getPasswordResetTokenExpirationMinutes() {
-		return passwordResetTokenExpirationMinutes;
-	}
-
-	/**
 	 * Returns number of users who have been registered since the specified
 	 * date.
 	 * 
@@ -495,7 +471,7 @@ public class UserManager implements Serializable {
 			return false;
 		}
 
-		long tokenExpiration = token.getCreationTime().getTime() + passwordResetTokenExpirationMinutes * MILIS_IN_MINUTE;
+		long tokenExpiration = token.getCreationTime().getTime() + properties.getPasswordResetTokenExpirationMinutes() * MILIS_IN_MINUTE;
 		long now = new Date().getTime();
 
 		if (now > tokenExpiration) {
@@ -856,21 +832,8 @@ public class UserManager implements Serializable {
 	 * you should prefer creating and keeping just a single instance of
 	 * UserManager over creating a new instance every time you need its
 	 * functionality.
-	 * 
-	 * @param databaseModel
-	 *            an object instance used to access the database
-	 * @param emailSender
-	 *            an object instance used to send emails
-	 * @param sessionModel
-	 *            an object instance used to store data in a session (for
-	 *            instance the currently logged in user)
-	 * @param properties
-	 *            properties used to affect the default behaviour/settings
 	 */
-	public UserManager(UserDatabaseModel databaseModel, EmailSender emailSender, SessionModel sessionModel, Properties properties) {
-		this.databaseModel = databaseModel;
-		this.emailSender = emailSender;
-		this.sessionModel = sessionModel;
+	public UserManager() {
 
 		try {
 			this.randomGenerator = SecureRandom.getInstance("SHA1PRNG");
@@ -879,7 +842,6 @@ public class UserManager implements Serializable {
 			LOGGER.warn("Failed to create random generator.", e);
 		}
 
-		parseProperties(properties);
 	}
 
 }
