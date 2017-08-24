@@ -164,7 +164,7 @@ public class UserManager implements Serializable {
 		return result.toString();
 	}
 
-	protected String calculatePasswordHash(String password, String salt) {
+	protected synchronized String calculatePasswordHash(String password, String salt) {
 		try {
 			sha256.update(salt.getBytes(PASSWORD_HASH_ENCODING));
 			return toHex(sha256.digest(password.getBytes(PASSWORD_HASH_ENCODING)));
