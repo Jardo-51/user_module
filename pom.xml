@@ -4,7 +4,7 @@
 
 	<groupId>com.jardoapps</groupId>
 	<artifactId>usermodule-parent</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 
 	<name>usermodule-parent</name>
 
@@ -16,7 +16,7 @@
 
 	<scm>
 		<developerConnection>scm:git:file://${project.basedir}</developerConnection>
-		<tag>HEAD</tag>
+		<tag>2017-08-24_18-55_v0.0.2</tag>
 	</scm>
 
 	<modules>
