@@ -23,7 +23,9 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.jardoapps.usermodule.User;
@@ -42,7 +44,9 @@ import com.jardoapps.usermodule.containers.UserPassword;
 public class UserEntity {
 
 	@Id
-	@GeneratedValue
+	@Column(name = "id")
+	@SequenceGenerator(name = "um_user_id_seq", sequenceName = "um_user_id_seq")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "um_user_id_seq")
 	private int id;
 
 	@Column(name = "name")

@@ -18,12 +18,31 @@
 
 package com.jardoapps.usermodule.hbn.dao;
 
-import org.hibernate.Session;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 public class CommonDao<T> {
 
-	public void add(Session session, T entity) {
-		session.save(entity);
+	@PersistenceContext
+	private EntityManager entityManager;
+
+	public void add(T entity) {
+		entityManager.persist(entity);
+	}
+
+	protected Query createQuery(String queryStr) {
+		return entityManager.createQuery(queryStr);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected <R> R getSingleResult(Query query) {
+		try {
+			return (R) query.getSingleResult();
+		} catch (NoResultException e) {
+			return null;
+		}
 	}
 
 }

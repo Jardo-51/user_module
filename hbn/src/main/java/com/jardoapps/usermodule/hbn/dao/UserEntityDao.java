@@ -21,8 +21,7 @@ package com.jardoapps.usermodule.hbn.dao;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.hibernate.Query;
-import org.hibernate.Session;
+import javax.persistence.Query;
 
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.hbn.entities.UserEntity;
@@ -31,36 +30,36 @@ public class UserEntityDao extends CommonDao<UserEntity> implements Serializable
 
 	private static final long serialVersionUID = 1L;
 
-	public boolean confirmRegistration(Session session, String email) {
+	public boolean confirmRegistration(String email) {
 		String queryStr = "UPDATE UserEntity u SET u.registrationConfirmed = true WHERE u.email = :email";
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("email", email);
 
 		int updatedRows = query.executeUpdate();
 		return updatedRows == 1;
 	}
 
-	public int getRegisteredUserCount(Session session, Date since) {
+	public int getRegisteredUserCount(Date since) {
 		if (since == null) {
 			since = new Date(0);
 		}
 
 		String queryStr = "SELECT count(*) FROM UserEntity u WHERE u.registrationConfirmed = true AND u.deleted = false AND u.registrationDate >= :since";
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("since", since);
 
-		Long result = (Long) query.uniqueResult();
+		Long result = getSingleResult(query);
 		return result.intValue();
 	}
 
-	public int getUserIdByEmail(Session session, String email) {
+	public int getUserIdByEmail(String email) {
 		String queryStr = "SELECT u.id FROM UserEntity u WHERE u.email= :email AND u.deleted = false";
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("email", email);
 
-		Integer result = (Integer) query.uniqueResult();
+		Integer result = getSingleResult(query);
 		if (result == null) {
 			return -1;
 		}
@@ -68,67 +67,69 @@ public class UserEntityDao extends CommonDao<UserEntity> implements Serializable
 		return result.intValue();
 	}
 
-	public UserPassword getUserPassword(Session session, int userId) {
+	public UserPassword getUserPassword(int userId) {
 		String queryStr = String.format("SELECT new %s(u.passwordHash, u.passwordSalt) FROM UserEntity u WHERE u.id= :id AND u.deleted = false", UserPassword.class.getName());
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("id", userId);
 
-		return (UserPassword) query.uniqueResult();
+		return getSingleResult(query);
 	}
 
-	public boolean deleteUserEntity(Session session, int userId) {
+	public boolean deleteUserEntity(int userId) {
 		String queryStr = "UPDATE UserEntity u SET u.deleted = true WHERE u.id = :userId";
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("userId", userId);
 
 		int updatedRows = query.executeUpdate();
 		return updatedRows == 1;
 	}
 
-	public UserEntity findByEmail(Session session, String email) {
+	public UserEntity findByEmail(String email) {
 		String queryStr = "FROM UserEntity u WHERE u.email = :email AND u.deleted = false";
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("email", email);
 		query.setMaxResults(1);
 
-		return (UserEntity) query.uniqueResult();
+		return getSingleResult(query);
 	}
 
-	public UserEntity findByName(Session session, String name) {
+	public UserEntity findByName(String name) {
 		String queryStr = "FROM UserEntity u WHERE u.name = :name AND u.deleted = false";
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("name", name);
 		query.setMaxResults(1);
 
-		return (UserEntity) query.uniqueResult();
+		return getSingleResult(query);
 	}
 
-	public boolean isEmailRegistered(Session session, String email) {
-		String queryStr = "SELECT 1 FROM UserEntity u WHERE u.email = :email AND u.deleted = false";
+	public boolean isEmailRegistered(String email) {
+		String queryStr = "SELECT count(*) FROM UserEntity u WHERE u.email = :email AND u.deleted = false";
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("email", email);
 
-		return query.uniqueResult() != null;
+		Long result = getSingleResult(query);
+		return result > 0;
 	}
 
-	public boolean isUserNameRegistered(Session session, String name) {
-		String queryStr = "SELECT 1 FROM UserEntity u WHERE u.name = :name AND u.deleted = false";
+	public boolean isUserNameRegistered(String name) {
+		String queryStr = "SELECT count(*) FROM UserEntity u WHERE u.name = :name AND u.deleted = false";
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("name", name);
 
-		return query.uniqueResult() != null;
+		Long result = getSingleResult(query);
+		return result > 0;
 	}
 
-	public boolean setUserPassword(Session session, int userId, UserPassword password) {
+	public boolean setUserPassword(int userId, UserPassword password) {
 		String queryStr = "UPDATE UserEntity u SET u.passwordHash = :hash, u.passwordSalt = :salt WHERE u.id = :userId";
 
-		Query query = session.createQuery(queryStr);
+		Query query = createQuery(queryStr);
 		query.setParameter("userId", userId);
 		query.setParameter("hash", password.getHash());
 		query.setParameter("salt", password.getSalt());
