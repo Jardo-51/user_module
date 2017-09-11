@@ -25,11 +25,11 @@ The user module library contains two sub-projects:
 
 * Project `usermodule` provides the core functionality. This project can be used with any database model via the `UserDatabaseModel` interface.
 
-* Project `usermodule.hbn` provides a default Hibernate implementation of the database model. You can use this implementation with the core project, or you can create your custom implementation.
+* Project `usermodule-jpa` provides a default JPA implementation of the database model. You can use this implementation with the core project, or you can create your custom implementation.
 
 ### 1. Get the user module library
 
-Clone this projects git repository or download the sources and import project `usermodule` and optionally `usermodule.hbn` into your IDE as Maven projects.
+Clone this projects git repository or download the sources and import project `usermodule` and optionally `usermodule-jpa` into your IDE as Maven projects.
 
 ### 2. Include it in your Maven project
 
@@ -42,11 +42,11 @@ Put the following dependency code into your pom.xml file:
 			<version>${usermodule.version}</version>
 		</dependency>
 
-		<!-- optional Hibernate database model implementation -->
+		<!-- optional JPA database model implementation -->
 
 		<dependency>
 			<groupId>com.jardoapps</groupId>
-			<artifactId>usermodule.hbn</artifactId>
+			<artifactId>usermodule-jpa</artifactId>
 			<version>${usermodule.version}</version>
 		</dependency>
 ```
@@ -55,7 +55,7 @@ Put the following dependency code into your pom.xml file:
 
 In order to use the User Module library, you have to provide an implementation of these interfaces:
 
-* `UserDatabaseModel` interface is used to access the user database. You can create your own implementation of the database model, or you can use the default implementation provided by class `UserDatabaseModelHbn` from project `usermodule.hbn`.
+* `UserDatabaseModel` interface is used to access the user database. You can create your own implementation of the database model, or you can use the default implementation provided by class `UserDatabaseModelJpa` from project `usermodule-jpa`.
 
 * `EmailSender` interface is used to send emails. Emails are send to confirm user registration or to restore lost passwords.
 
