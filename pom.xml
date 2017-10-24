@@ -21,7 +21,7 @@
 
 	<modules>
 		<module>core</module>
-		<module>hbn</module>
+		<module>jpa</module>
 	</modules>
 
 	<dependencyManagement>
