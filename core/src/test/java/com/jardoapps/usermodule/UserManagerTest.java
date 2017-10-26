@@ -18,6 +18,7 @@
 
 package com.jardoapps.usermodule;
 
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -42,8 +43,10 @@ public class UserManagerTest {
 	private static final long ONE_DAY = 86400000L;
 
 	// password = 'password'
-	private static final String STORED_PASSWORD_HASH = "EA1BAA4CAD9D822A51A1AA267A618FB2AC6D5D98A89709A595487EA493A69E90";
+	private static final String STORED_PASSWORD_HASH = "C0794DCF71360C8A6302C49B3228CBCFFC8CD07BBC55250EAC7D2C599B9AE2BD";
 	private static final String STORED_PASSWORD_SALT = "7886788CB39BF33C856EF18206A81CE4B498DC5A1A4199ABC0CB0FB686EAB008";
+
+	private static final String HASH_ENCODING = "UTF-16";
 
 	@Spy
 	private UserManagementProperties properties = new UserManagementPropertiesImpl();
@@ -70,9 +73,9 @@ public class UserManagerTest {
 
 	private MessageDigest sha256;
 
-	private void assertPasswordData(String password, UserPassword passwordData) {
-		sha256.update(passwordData.getSalt().getBytes());
-		String expectedHash = toHex(sha256.digest(password.getBytes()));
+	private void assertPasswordData(String password, UserPassword passwordData) throws UnsupportedEncodingException {
+		sha256.update(passwordData.getSalt().getBytes(HASH_ENCODING));
+		String expectedHash = toHex(sha256.digest(password.getBytes(HASH_ENCODING)));
 
 		Assert.assertEquals(expectedHash, passwordData.getHash().toLowerCase());
 	}
@@ -156,7 +159,7 @@ public class UserManagerTest {
 	}
 
 	@Test
-	public void testChangePassword() {
+	public void testChangePassword() throws Exception {
 		Mockito.when(databaseModel.getUserPassword(1)).thenReturn(storedPassword);
 		Mockito.when(databaseModel.setUserPassword(Mockito.eq(1), Mockito.any(UserPassword.class))).thenReturn(true);
 
@@ -206,7 +209,7 @@ public class UserManagerTest {
 	}
 
 	@Test
-	public void testConfirmManualRegistration() {
+	public void testConfirmManualRegistration() throws Exception {
 		Mockito.when(databaseModel.getUserByEmail("john@example.com")).thenReturn(userWithUnfinishedRegistration);
 		Mockito.when(databaseModel.confirmUserRegistration("john@example.com")).thenReturn(true);
 		Mockito.when(databaseModel.setUserPassword(Mockito.eq(2), Mockito.any(UserPassword.class))).thenReturn(true);
@@ -482,7 +485,7 @@ public class UserManagerTest {
 	}
 
 	@Test
-	public void testRegisterUser() {
+	public void testRegisterUser() throws Exception {
 		Mockito.when(databaseModel.isEmailRegistered("carl@example.com")).thenReturn(false);
 		Mockito.when(databaseModel.isUserNameRegistered("Carl")).thenReturn(false);
 		Mockito.when(databaseModel.addUser(Mockito.notNull(User.class))).thenReturn(2);
@@ -578,7 +581,7 @@ public class UserManagerTest {
 	}
 
 	@Test
-	public void testRegisterUserManually() {
+	public void testRegisterUserManually() throws Exception {
 
 		Mockito.when(databaseModel.isEmailRegistered("carl@example.com")).thenReturn(false);
 		Mockito.when(databaseModel.isUserNameRegistered("Carl")).thenReturn(false);
@@ -648,7 +651,7 @@ public class UserManagerTest {
 	}
 
 	@Test
-	public void testResetPassword() {
+	public void testResetPassword() throws Exception {
 		PasswordResetToken token = new PasswordResetToken(1, "a4d21f702e44af5d0ce7228dae878672", new Date());
 		Mockito.when(databaseModel.getNewestPasswordResetToken("john@example.com")).thenReturn(token);
 		Mockito.when(databaseModel.getUserIdByEmail("john@example.com")).thenReturn(1);

@@ -60,7 +60,7 @@ public class UserManager implements Serializable {
 	private static final long MILIS_IN_MINUTE = 60000L;
 	private static final byte PASSWORD_SALT_LENGTH = 32;
 
-	private static final String PASSWORD_HASH_ENCODING = "UTF-8";
+	private static final String PASSWORD_HASH_ENCODING = "UTF-16";
 
 	private static final long serialVersionUID = 1L;
 
