@@ -1,0 +1,17 @@
+                 Change log for user-module
+
+----------------------------------------------------------------
+
+0.1.0 - 2017-10-26
+      - used javax.inject annotations for dependency injection
+      - added basic SessionModel implementation
+      - abstracted DB access from Hibernate to JPA (Project usermodule.hbn renamed to usermodule-jpa)
+      - added dummy EmailSender implementation
+      - changed password hash encoding from UTF-8 to UTF16
+        WARNING: This change will break all existing password hashes.
+        All existing users will have to reset their passwords.
+
+----------------------------------------------------------------
+
+0.0.2 - 2017-08-24
+      - fixed error: password hash calculation was not thread safe
