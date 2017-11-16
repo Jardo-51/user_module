@@ -121,7 +121,7 @@ public class UserManager implements Serializable {
 	}
 
 	private User createUserWithSocialAccount(SocialAccountDetails details) {
-		return new User(-1, details.getUserName(), details.getEmail(), null, true, null, UserRanks.NORMAL_USER);
+		return new User(0, details.getUserName(), details.getEmail(), null, true, null, UserRanks.NORMAL_USER);
 	}
 
 	private String generateRandomMD5Hash() {
