@@ -35,6 +35,7 @@ import com.jardoapps.usermodule.User;
 import com.jardoapps.usermodule.UserDatabaseModel;
 import com.jardoapps.usermodule.UserRanks;
 import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.SocialAccountDetails;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.jpa.config.DatabaseTestConfig;
 
@@ -170,6 +171,36 @@ public class UserDatabaseModelJpaTest extends UMDatabaseTestCase {
 		assertEquals(1, result.getId());
 	}
 
+	@Test
+	public void getUserBySocialAccount_byAccountId() throws Exception {
+		fillDatabase("userDatabaseModelHbnTest/beforeGetUserBySocialAccount_byAccountId.xml");
+
+		SocialAccountDetails details = new SocialAccountDetails("FCB", "2", "", "");
+
+		User result = databaseModel.getUserBySocialAccount(details);
+		assertEquals(2, result.getId());
+	}
+
+	@Test
+	public void getUserBySocialAccount_byAccountType() throws Exception {
+		fillDatabase("userDatabaseModelHbnTest/beforeGetUserBySocialAccount_byAccountType.xml");
+
+		SocialAccountDetails details = new SocialAccountDetails("GHB", "1", "", "");
+
+		User result = databaseModel.getUserBySocialAccount(details);
+		assertEquals(2, result.getId());
+	}
+
+	@Test 
+	public void getUserBySocialAccount_notFound() throws Exception {
+		fillDatabase("userDatabaseModelHbnTest/beforeGetUserBySocialAccount_notFound.xml");
+
+		SocialAccountDetails details = new SocialAccountDetails("GHB", "1", "", "");
+
+		User result = databaseModel.getUserBySocialAccount(details);
+		assertEquals(null, result);
+	}
+	
 	@Test
 	public void testGetUserIdByEmail() throws DatabaseUnitException, SQLException, Exception {
 		fillDatabase("userDatabaseModelHbnTest/userList.xml");

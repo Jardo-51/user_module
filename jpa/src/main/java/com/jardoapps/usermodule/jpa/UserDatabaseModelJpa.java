@@ -27,12 +27,15 @@ import javax.transaction.Transactional;
 import com.jardoapps.usermodule.User;
 import com.jardoapps.usermodule.UserDatabaseModel;
 import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.SocialAccountDetails;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.jpa.dao.LogInRecordEntityDao;
 import com.jardoapps.usermodule.jpa.dao.PasswordResetTokenEntityDao;
+import com.jardoapps.usermodule.jpa.dao.SocialAccountDao;
 import com.jardoapps.usermodule.jpa.dao.UserEntityDao;
 import com.jardoapps.usermodule.jpa.entities.LogInRecordEntity;
 import com.jardoapps.usermodule.jpa.entities.PasswordResetTokenEntity;
+import com.jardoapps.usermodule.jpa.entities.SocialAccountEntity;
 import com.jardoapps.usermodule.jpa.entities.UserEntity;
 
 /**
@@ -67,6 +70,9 @@ public class UserDatabaseModelJpa implements UserDatabaseModel, Serializable {
 
 	@Inject
 	private LogInRecordEntityDao logInRecordEntityDao;
+
+	@Inject
+	private SocialAccountDao socialAccountDao;
 
 	@Transactional
 	public boolean addPasswordResetToken(PasswordResetToken token) {
@@ -140,6 +146,17 @@ public class UserDatabaseModelJpa implements UserDatabaseModel, Serializable {
 		return userEntity.toUser();
 	}
 
+	public User getUserBySocialAccount(SocialAccountDetails details) {
+
+		UserEntity userEntity = socialAccountDao.getUserByAccount(details.getAccountType(), details.getUserId());
+
+		if (userEntity == null) {
+			return null;
+		}
+
+		return userEntity.toUser();
+	}
+
 	public int getUserIdByEmail(String email) {
 		return userEntityDao.getUserIdByEmail(email);
 	}
@@ -171,6 +188,25 @@ public class UserDatabaseModelJpa implements UserDatabaseModel, Serializable {
 		logInRecordEntityDao.add(logInRecordEntity);
 
 		return true;
+	}
+
+	@Transactional
+	public int saveUserWithSocialAccount(User user, SocialAccountDetails details) {
+
+		UserEntity userEntity = new UserEntity();
+		userEntity.copyUser(user);
+		userEntity.setRegistrationDate(new Date());
+
+		userEntityDao.add(userEntity);
+
+		SocialAccountEntity socialAccountEntity = new SocialAccountEntity();
+		socialAccountEntity.setUser(userEntity);
+		socialAccountEntity.setAccountType(details.getAccountType());
+		socialAccountEntity.setOriginalAccountId(details.getUserId());
+
+		socialAccountDao.add(socialAccountEntity);
+
+		return user.getId();
 	}
 
 	@Transactional

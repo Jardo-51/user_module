@@ -10,6 +10,7 @@ import com.jardoapps.usermodule.UserDatabaseModel;
 import com.jardoapps.usermodule.jpa.UserDatabaseModelJpa;
 import com.jardoapps.usermodule.jpa.dao.LogInRecordEntityDao;
 import com.jardoapps.usermodule.jpa.dao.PasswordResetTokenEntityDao;
+import com.jardoapps.usermodule.jpa.dao.SocialAccountDao;
 import com.jardoapps.usermodule.jpa.dao.UserEntityDao;
 
 @EnableTransactionManagement
@@ -36,6 +37,11 @@ public class DatabaseTestConfig {
 	@Bean
 	public PasswordResetTokenEntityDao getPasswordResetTokenEntityDao() {
 		return new PasswordResetTokenEntityDao();
+	}
+
+	@Bean
+	public SocialAccountDao getSocialAccountDao() {
+		return new SocialAccountDao();
 	}
 
 	@Bean
