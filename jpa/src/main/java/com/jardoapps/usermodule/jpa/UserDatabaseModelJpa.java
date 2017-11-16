@@ -206,7 +206,7 @@ public class UserDatabaseModelJpa implements UserDatabaseModel, Serializable {
 
 		socialAccountDao.add(socialAccountEntity);
 
-		return user.getId();
+		return userEntity.getId();
 	}
 
 	@Transactional
