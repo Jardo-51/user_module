@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.SocialAccountDetails;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.defines.EmailType;
 import com.jardoapps.usermodule.utils.EmailUtils;
@@ -117,6 +118,10 @@ public class UserManager implements Serializable {
 		String hash = calculatePasswordHash(password, salt);
 
 		return new UserPassword(hash, salt);
+	}
+
+	private User createUserWithSocialAccount(SocialAccountDetails details) {
+		return new User(-1, details.getUserName(), details.getEmail(), null, true, null, UserRanks.NORMAL_USER);
 	}
 
 	private String generateRandomMD5Hash() {
@@ -556,6 +561,28 @@ public class UserManager implements Serializable {
 		}
 
 		return ResultCode.OK;
+	}
+
+	/**
+	 * Tries to find a user by the provided social account details. If a user is found, they are returned.
+	 * If no user is found, they will be created and returned.
+	 * @param details
+	 * @return Existing or newly created user.
+	 * @since 0.2.0
+	 */
+	public User loginOrRegisterWithSocialAccount(SocialAccountDetails details, String usersIp) {
+
+		User user = databaseModel.getUserBySocialAccount(details);
+		if (user == null) {
+			user = createUserWithSocialAccount(details);
+			int newId = databaseModel.saveUserWithSocialAccount(user, details);
+			user = user.withId(newId);
+		}
+
+		sessionModel.setCurrentUser(user);
+		makeLogInRecord(user.getId(), true, usersIp);
+
+		return user;
 	}
 
 	/**

@@ -74,6 +74,10 @@ public class User {
 		this.rank = rank;
 	}
 
+	public User withId(int newId) {
+		return new User(newId, name, email, registrationControlCode, registrationConfirmed, password, rank);
+	}
+
 	public User(int id, String name, String email, String registrationControlCode, boolean registrationConfirmed, UserPassword password, int rank) {
 		this.id = id;
 		this.name = name;

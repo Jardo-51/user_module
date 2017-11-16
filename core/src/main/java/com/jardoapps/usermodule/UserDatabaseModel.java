@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.SocialAccountDetails;
 import com.jardoapps.usermodule.containers.UserPassword;
 
 /**
@@ -133,6 +134,12 @@ public interface UserDatabaseModel extends Serializable {
 	User getUserByName(String name);
 
 	/**
+	 * @since 0.2.0
+	 * @see #saveUserWithSocialAccount(User, SocialAccountDetails)
+	 */
+	User getUserBySocialAccount(SocialAccountDetails details);
+
+	/**
 	 * Returns id of user registered with the specified {@link User#getEmail()
 	 * email address}.
 	 * 
@@ -191,6 +198,14 @@ public interface UserDatabaseModel extends Serializable {
 	 * @return True on success, otherwise false.
 	 */
 	boolean makeLogInRecord(int userId, boolean logInSuccessful, String usersIp);
+
+	/**
+	 * @return Positive integer value representing the new user ID on success,
+	 *         or negative integer value on failure.
+	 * @since 0.2.0
+	 * @see #getUserBySocialAccount(SocialAccountDetails)
+	 */
+	int saveUserWithSocialAccount(User user, SocialAccountDetails details);
 
 	/**
 	 * Sets a new password for the user with the specified id.

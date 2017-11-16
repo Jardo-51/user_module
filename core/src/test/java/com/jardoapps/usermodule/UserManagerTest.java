@@ -18,6 +18,9 @@
 
 package com.jardoapps.usermodule;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,6 +37,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.jardoapps.usermodule.containers.PasswordResetToken;
+import com.jardoapps.usermodule.containers.SocialAccountDetails;
 import com.jardoapps.usermodule.containers.UserPassword;
 import com.jardoapps.usermodule.defines.EmailType;
 
@@ -476,6 +480,43 @@ public class UserManagerTest {
 		Assert.assertSame(inetAddress, ipCaptor.getValue());
 
 		Mockito.verify(databaseModel).cancelAllPasswordResetTokens(1);
+	}
+
+	@Test
+	public void testLoginOrRegisterWithSocialAccount_existingUser() {
+
+		SocialAccountDetails details = new SocialAccountDetails("FB", "usr1", "User 1", "usr1@test.com");
+
+		User user = new User(1, null, null, null, true, null, 0);
+		Mockito.when(databaseModel.getUserBySocialAccount(Mockito.same(details))).thenReturn(user);
+
+		User result = userManager.loginOrRegisterWithSocialAccount(details, inetAddress);
+		assertSame(user, result);
+
+		Mockito.verify(sessionModel).setCurrentUser(Mockito.same(user));
+		Mockito.verify(databaseModel).makeLogInRecord(1, true, inetAddress);
+	}
+
+	@Test
+	public void testLoginOrRegisterWithSocialAccount_newUser() {
+
+		SocialAccountDetails details = new SocialAccountDetails("FB", "usr1", "User 1", "usr1@test.com");
+
+		Mockito.when(databaseModel.getUserBySocialAccount(Mockito.same(details))).thenReturn(null);
+		Mockito.when(databaseModel.saveUserWithSocialAccount(Mockito.any(User.class), Mockito.same(details))).thenReturn(1);
+
+		User result = userManager.loginOrRegisterWithSocialAccount(details, inetAddress);
+
+		assertEquals(1, result.getId());
+		assertEquals("User 1", result.getName());
+		assertEquals("usr1@test.com", result.getEmail());
+		assertEquals(null, result.getRegistrationControlCode());
+		assertEquals(true, result.isRegistrationConfirmed());
+		assertEquals(null, result.getPassword());
+		assertEquals(UserRanks.NORMAL_USER, result.getRank());
+
+		Mockito.verify(sessionModel).setCurrentUser(Mockito.same(result));
+		Mockito.verify(databaseModel).makeLogInRecord(1, true, inetAddress);
 	}
 
 	@Test
