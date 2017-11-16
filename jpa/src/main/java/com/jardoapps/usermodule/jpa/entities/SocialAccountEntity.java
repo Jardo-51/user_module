@@ -7,9 +7,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 @Entity
-@Table(name="um_social_account")
+@Table(name="um_social_account", uniqueConstraints = @UniqueConstraint(columnNames = {"account_type", "original_account_id"}))
 public class SocialAccountEntity {
 
 	public static final int ACCOUNT_TYPE_MAX_LENGTH = 10;
