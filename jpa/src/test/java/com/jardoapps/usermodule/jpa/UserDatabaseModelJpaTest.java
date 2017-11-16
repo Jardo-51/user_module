@@ -191,7 +191,7 @@ public class UserDatabaseModelJpaTest extends UMDatabaseTestCase {
 		assertEquals(2, result.getId());
 	}
 
-	@Test 
+	@Test
 	public void getUserBySocialAccount_notFound() throws Exception {
 		fillDatabase("userDatabaseModelHbnTest/beforeGetUserBySocialAccount_notFound.xml");
 
@@ -200,7 +200,7 @@ public class UserDatabaseModelJpaTest extends UMDatabaseTestCase {
 		User result = databaseModel.getUserBySocialAccount(details);
 		assertEquals(null, result);
 	}
-	
+
 	@Test
 	public void testGetUserIdByEmail() throws DatabaseUnitException, SQLException, Exception {
 		fillDatabase("userDatabaseModelHbnTest/userList.xml");
