@@ -86,9 +86,16 @@ public class UserEntity {
 		email = user.getEmail();
 		registrationControlCode = user.getRegistrationControlCode();
 		registrationConfirmed = user.isRegistrationConfirmed();
-		passwordHash = user.getPassword().getHash();
-		passwordSalt = user.getPassword().getSalt();
 		rank = user.getRank();
+
+		UserPassword password = user.getPassword();
+		if (password != null) {
+			passwordHash = password.getHash();
+			passwordSalt = password.getSalt();
+		} else {
+			passwordHash = null;
+			passwordSalt = null;
+		}
 	}
 
 	public int getId() {
