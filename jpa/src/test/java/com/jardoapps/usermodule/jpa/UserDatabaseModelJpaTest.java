@@ -284,6 +284,21 @@ public class UserDatabaseModelJpaTest extends UMDatabaseTestCase {
 	}
 
 	@Test
+	public void testSaveUserWithSocialAccount() throws Exception {
+		fillDatabase("userDatabaseModelHbnTest/beforeSaveUserWithSocialAccount.xml");
+
+		User user = new User(0, "mike", "mike@test.com", null, true, null, 2);
+		SocialAccountDetails details = new SocialAccountDetails("GHB", "2", "", "");
+
+		int result = databaseModel.saveUserWithSocialAccount(user, details);
+		assertEquals(1, result);
+
+		IDataSet expectedDataSet = loadFlatXmlDataSet("userDatabaseModelHbnTest/afterSaveUserWithSocialAccount.xml");
+		assertTableContent(expectedDataSet, "um_user", new String[] { "reg_date", "reg_control_code", "password", "salt" });
+		assertTableContent(expectedDataSet, "um_social_account", null);
+	}
+	
+	@Test
 	public void testSetUserPassword() throws DatabaseUnitException, SQLException, Exception {
 		fillDatabase("userDatabaseModelHbnTest/beforeSetUserPassword.xml");
 

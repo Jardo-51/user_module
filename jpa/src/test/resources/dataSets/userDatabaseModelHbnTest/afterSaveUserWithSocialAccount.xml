@@ -1,0 +1,9 @@
+<dataset>
+
+	<um_user id="-1" email="john@test.com" name="john" confirmed="1" deleted="0" rank="2" reg_date="2013-01-01 00:00:00" reg_control_code="029b50deea7a25c41e489e6ee3635e52" password="7342f7c8d3d1d68ee7c03ab72b3deac613b837a4c4c07042cbeca974ea7ba218" salt="7886788cb39bf33c856ef18206a81ce4b498dc5a1a4199abc0cb0fb686eab008" /> <!-- password: password-john -->
+	<um_user id="1"  email="mike@test.com" name="mike" confirmed="1" deleted="0" rank="2" reg_date="2013-01-02 00:00:00" reg_control_code="[NULL]"                           password="[NULL]"                                                           salt="[NULL]" />
+
+	<um_social_account id="-1" user_id="-1" account_type="FCB" original_account_id="1" />
+	<um_social_account id="1"  user_id="1"  account_type="GHB" original_account_id="2" />
+
+</dataset>
