@@ -2,6 +2,11 @@
 
 ----------------------------------------------------------------
 
+0.2.0 - 2017-11-21
+      - added support for social account login
+
+----------------------------------------------------------------
+
 0.1.0 - 2017-10-26
       - used javax.inject annotations for dependency injection
       - added basic SessionModel implementation
