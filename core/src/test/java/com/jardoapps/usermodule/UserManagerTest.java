@@ -541,7 +541,7 @@ public class UserManagerTest {
 		Mockito.verify(databaseModel).addUser(userCaptor.capture());
 
 		User addedUser = userCaptor.getValue();
-		Assert.assertEquals(-1, addedUser.getId());
+		Assert.assertEquals(0, addedUser.getId());
 		Assert.assertEquals("carl@example.com", addedUser.getEmail());
 		Assert.assertEquals("Carl", addedUser.getName());
 		Assert.assertEquals(false, addedUser.isRegistrationConfirmed());
@@ -587,7 +587,7 @@ public class UserManagerTest {
 		Mockito.verify(databaseModel).addUser(userCaptor.capture());
 
 		User addedUser = userCaptor.getValue();
-		Assert.assertEquals(-1, addedUser.getId());
+		Assert.assertEquals(0, addedUser.getId());
 		Assert.assertEquals("carl@example.com", addedUser.getEmail());
 		Assert.assertEquals("Carl", addedUser.getName());
 		Assert.assertEquals(false, addedUser.isRegistrationConfirmed());
@@ -613,7 +613,7 @@ public class UserManagerTest {
 		Mockito.verify(databaseModel).addUser(userCaptor.capture());
 
 		User addedUser = userCaptor.getValue();
-		Assert.assertEquals(-1, addedUser.getId());
+		Assert.assertEquals(0, addedUser.getId());
 		Assert.assertEquals("carl@example.com", addedUser.getEmail());
 		Assert.assertEquals("Carl", addedUser.getName());
 		Assert.assertEquals(true, addedUser.isRegistrationConfirmed());

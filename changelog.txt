@@ -2,6 +2,11 @@
 
 ----------------------------------------------------------------
 
+0.3.0 - SNAPSHOT
+      - fixed error: user registration wasn't working with JPA because of invalid user ID
+
+----------------------------------------------------------------
+
 0.2.0 - 2017-11-21
       - added support for social account login
 
